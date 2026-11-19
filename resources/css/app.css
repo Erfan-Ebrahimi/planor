@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --font-ui: system-ui, sans-serif;
+
+    --color-canvas: #22252a;
+    --color-auth: #1e1e1e;
+    --color-header: #1a1c20;
+    --color-sidebar: #20303f;
+    --color-sidebar-item: #162029;
+    --color-sidebar-selected: #0c5064;
+    --color-tile: #3b3b3b;
+    --color-list: #1f2d3c;
+    --color-card: #2c3e51;
+    --color-card-hover: #1c3546;
+    --color-card-selected: #11576b;
+    --color-detail: #223140;
+    --color-detail-header: #2c3e51;
+    --color-popup: #2a3d50;
+    --color-input: #17232c;
+    --color-text-primary: #ebebec;
+    --color-text-secondary: #d3d3d3;
+    --color-text-muted: #999999;
+    --color-link: #2196f3;
+    --color-accent: #34b7cd;
+    --color-border: #5f6064;
+    --color-border-subtle: rgb(54 75 97 / 50%);
+    --color-submit: #5aac44;
+    --color-cancel: #cf513d;
+    --color-auth-action: #2185d0;
+    --color-notification: #eb5a46;
+    --color-due-normal: #999999;
+    --color-due-close: #fdd41e;
+    --color-due-over: #ff3030;
+
+    --type-meta: 0.8571429rem;
+    --type-body: 1rem;
+    --type-label: 1.1428571rem;
+    --type-shell-title: 1.4285714rem;
+    --type-heading: 2rem;
+    --type-auth-title: 2.5714286rem;
+    --line-body: 1.4285;
+    --line-heading: 1.28571429;
+
+    --space-2: 2px;
+    --space-4: 4px;
+    --space-6: 6px;
+    --space-8: 8px;
+    --space-10: 10px;
+    --space-12: 12px;
+    --space-15: 15px;
+    --space-16: 16px;
+    --space-20: 20px;
+    --size-header: 50px;
+    --size-sidebar: 230px;
+    --size-control: 44px;
+    --size-icon: 20px;
+    --size-mark: 32px;
+
+    --radius-card: 2px;
+    --radius-control: 3px;
+    --radius-tile: 5px;
+    --radius-panel: 12px;
+    --radius-round: 50%;
+
+    --shadow-card: 0 1px 4px rgb(0 0 0 / 15%);
+    --shadow-sidebar: -2px 0 5px rgb(0 0 0 / 10%);
+    --shadow-popup: -1px -1px 3px #19232e, 1px 1px 3px #19232e;
+    --layer-popup: 2000;
+  }
+
+  html {
+    font-size: 87.5%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-body text-primary;
+  }
+
+  :focus-visible {
+    outline: var(--space-2) solid var(--color-accent);
+    outline-offset: var(--space-2);
+  }
+}
