@@ -15,6 +15,16 @@ export default [
     },
   },
   {
+    files: ['harness/**/*.js'],
+    languageOptions: {
+      globals: {
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+  },
+  {
     files: ['**/*.{js,vue}'],
     ignores: ['resources/js/lib/inertia.js'],
     rules: {

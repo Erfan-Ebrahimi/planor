@@ -33,6 +33,10 @@ export default {
         submit: 'var(--color-submit)',
         cancel: 'var(--color-cancel)',
         'auth-action': 'var(--color-auth-action)',
+        'auth-button': 'var(--color-auth-button)',
+        'on-auth-button': 'var(--color-on-auth-button)',
+        'auth-error': 'var(--color-auth-error)',
+        'auth-error-surface': 'var(--color-auth-error-surface)',
         notification: 'var(--color-notification)',
         'due-normal': 'var(--color-due-normal)',
         'due-close': 'var(--color-due-close)',
@@ -72,6 +76,9 @@ export default {
         panel: 'var(--radius-panel)',
         round: 'var(--radius-round)',
       },
+      maxWidth: {
+        'auth-panel': 'var(--size-auth-panel)',
+      },
       boxShadow: {
         card: 'var(--shadow-card)',
         sidebar: 'var(--shadow-sidebar)',
@@ -79,6 +86,9 @@ export default {
       },
       zIndex: {
         popup: 'var(--layer-popup)',
+      },
+      animation: {
+        'auth-spinner': 'spin var(--motion-loader) linear infinite',
       },
     },
   },

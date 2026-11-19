@@ -30,5 +30,11 @@ defineProps({
       <path d="m3 10 9-7 9 7M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9" />
       <path d="M10 20v-6h4v6" />
     </template>
+    <template v-else-if="name === 'eye' || name === 'eye-off'">
+      <path d="M2.5 12s3.5-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.5 5.5-9.5 5.5S2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path v-if="name === 'eye-off'" d="m4 4 16 16" />
+    </template>
+    <path v-else-if="name === 'close'" d="m6 6 12 12M18 6 6 18" />
   </svg>
 </template>

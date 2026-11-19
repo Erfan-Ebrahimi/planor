@@ -32,6 +32,10 @@
     --color-submit: #5aac44;
     --color-cancel: #cf513d;
     --color-auth-action: #2185d0;
+    --color-auth-button: #2075b6;
+    --color-on-auth-button: #ffffff;
+    --color-auth-error: #ff6f61;
+    --color-auth-error-surface: #5a2323;
     --color-notification: #eb5a46;
     --color-due-normal: #999999;
     --color-due-close: #fdd41e;
@@ -60,6 +64,7 @@
     --size-control: 44px;
     --size-icon: 20px;
     --size-mark: 32px;
+    --size-auth-panel: 440px;
 
     --radius-card: 2px;
     --radius-control: 3px;
@@ -71,6 +76,7 @@
     --shadow-sidebar: -2px 0 5px rgb(0 0 0 / 10%);
     --shadow-popup: -1px -1px 3px #19232e, 1px 1px 3px #19232e;
     --layer-popup: 2000;
+    --motion-loader: 600ms;
   }
 
   html {
