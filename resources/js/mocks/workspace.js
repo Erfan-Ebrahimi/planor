@@ -12,3 +12,33 @@ export const workspacePage = {
     sidebarShown: true,
   },
 }
+
+export const reviewTeams = [
+  { id: 'tm-101', name: 'استودیو سپیدار' },
+  { id: 'tm-102', name: 'تجربه مشتری پارس‌نگار' },
+  { id: 'tm-103', name: 'گروه پژوهش راه‌نو' },
+  { id: 'tm-104', name: 'استودیو آفتاب' },
+]
+
+export const reviewBoards = [
+  { id: 'br-201', teamId: 'tm-101', name: 'بازطراحی وب‌سایت', cardCount: 18, taskCount: 27 },
+  { id: 'br-202', teamId: 'tm-101', name: 'محتوای شبکه‌های اجتماعی', cardCount: 8, taskCount: 11 },
+  { id: 'br-203', teamId: 'tm-101', name: 'طرح‌های در دست بررسی', cardCount: 5, taskCount: 9 },
+  { id: 'br-204', teamId: 'tm-102', name: 'راهنمای مشتریان', cardCount: 12, taskCount: 21 },
+  { id: 'br-205', teamId: 'tm-102', name: 'بازخورد کاربران', cardCount: 0, taskCount: 0 },
+  { id: 'br-206', teamId: 'tm-104', name: 'برنامه تولید پاییز', cardCount: 7, taskCount: 14 },
+]
+
+export const reviewTeamMemberships = [
+  { userId: 'usr-1007', teamId: 'tm-101', role: 'manager', canView: true, sidebarCollapsed: false },
+  { userId: 'usr-1007', teamId: 'tm-102', role: 'member', canView: true, sidebarCollapsed: true },
+  { userId: 'usr-1007', teamId: 'tm-103', role: 'member', canView: true, sidebarCollapsed: false },
+]
+
+export const reviewBoardCapabilities = [
+  { userId: 'usr-1007', boardId: 'br-201', canView: true },
+  { userId: 'usr-1007', boardId: 'br-202', canView: true },
+  { userId: 'usr-1007', boardId: 'br-203', canView: false },
+  { userId: 'usr-1007', boardId: 'br-204', canView: true },
+  { userId: 'usr-1007', boardId: 'br-205', canView: true },
+]

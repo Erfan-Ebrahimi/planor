@@ -27,17 +27,19 @@ Source revision `8ef8da408677420c9a3a1ae967d3ca337c5c5466`. Source paths are 4ga
 - [x] Step 1 uses the documented Default palette. The spec named some shell color families without exact values. Read only the Default theme lines in the sibling `client/src/colors.css` to confirm the sidebar item and selected colors, popup shadow, and border colors.
 - [x] Step 1 approved. Step 2 adds Persian login and registration at `/login` and `/register`, with the real Inertia adapter and a local mock transport in the Vite harness. Added no dependencies.
 - [x] Step 2 source checks resolved the username format and which fields receive focus and invalid styling on credential rejection. Consulted only the relevant lines of `client/src/utils/validator.js` and `client/src/components/Login/Login.jsx`. Consulted `client/src/colors.css` for the exact auth-button and error colors omitted from the spec. The auth button uses the darker source blue for text contrast.
+- [x] Step 2 approved. Step 3 adds the team overview, team boards, board context header and restricted-route view, using a persistent workspace layout with an RTL navigation tree and live name filters. The baseline is `227dc16`.
+- [x] Step 3 source checks resolved how team and board filters project counts and tiles on the dashboard and team page, how the default scope changes at route boundaries, and which groups open for the current route or board filter. Consulted the filter and count logic in `client/src/utils/sidebar-filter.js`, `client/src/components/Filter/Filter.jsx`, `client/src/components/Project/Project.jsx`, `client/src/components/Projects/Projects.jsx`, `client/src/containers/ProjectContainer.js`, `client/src/containers/ProjectsContainer.js` and `client/src/components/Static/SidebarProject.jsx`.
 
 ## Remaining
 
-- [ ] User review of step 2.
-- [ ] Steps 3–6. Team navigation, static board, drag and drop, and card details.
+- [ ] User review of step 3. Parent owns browser QA, the preview at `127.0.0.1:5176`, and Git.
+- [ ] Steps 4–6. Static board, drag and drop, and card details.
 - [ ] Steps 7–11. Jalali calendar, attachments/comments, notifications/activity, archive/restore/deletion, and final states and consistency.
 
 ## Pending decisions
 
 - **Account policy.** Confirm whether login accepts both username and email, registration password policy, initial display-name rules, production consent copy, and whether email verification is required. The review harness accepts email and a 3–16 character ASCII username, uses a mock 12-character password minimum, and assigns a known fictional Persian display name to the signup fixture. The consent line covers account creation. Real account policy and verification are pending.
-- **Step 3, workspace permissions.** Confirm team roles and whether an individual board can narrow access or commenting.
+- **Workspace permissions.** Production team roles, private board rules and commenting permissions remain pending. The review harness models view access through fixture membership and board grants. Local disclosure changes survive Inertia navigation, and reload takes the supplied membership default.
 - **Step 6, card details.** Confirm priority levels and their presentation, assignee replacement, and the narrow-screen card-detail layout.
 - **Step 7, calendar dependency.** Present two or three library choices with bundle size, upkeep, Vue 3/RTL support and conversion versus picker coverage. Wait for the user's choice before installing a date package.
 - **Step 7, timezone.** Ask which timezone the Jalali picker, displayed timestamps, and selected-day filter should use. The transport and storage contract is Gregorian ISO 8601 in UTC.
@@ -79,4 +81,30 @@ To reset the fictional session and the signup scenario, remove `planor.auth-revi
 | Browser, local Vite development server | Passed on desktop and at 389 px. Covered Persian RTL, first-field focus, password visibility, required fields, error descriptions and dismissal, busy buttons, username and email login, duplicate email, successful and closed registration, the protected return URL and session state after reload. |
 | `node --input-type=module -`, focused harness assertions | Passed for disallowed return destinations, consent, tab isolation, credential-free persistence and recovery from malformed session state. |
 
-Next step after step 2 approval is Step 3, team list and navigation sidebar. Start with [the workspace routes and shell spec](screens.md#shell-and-navigation).
+### Step 3 local QA
+
+Changed `harness/auth.js`, `harness/main.js`, `harness/workspace.js` and `resources/js/mocks/workspace.js` for authentication return paths and workspace page projections. The UI changes are in `resources/js/Pages/Workspace/`, `resources/js/Layouts/WorkspaceLayout.vue`, `resources/js/Components/AppIcon.vue`, `ShellHeader.vue`, `ShellSidebar.vue`, `WorkspaceTiles.vue` and `resources/js/composables/useWorkspaceNavigation.js`. The shared dictionary and Tailwind/CSS tokens define Persian copy, counts, tile dimensions and toolbar height. The existing dependencies and lockfile were reused.
+
+Use the parent’s existing preview URL and the step 2 fixture credentials above. Start signed out in an isolated tab session for the protected-return check. Sign in as نیلوفر رستگار (`usr-1007`) for the populated workspace. Her fixture role is manager for سپیدار and member for پارس‌نگار and راه‌نو. View grants control board inclusion independently of those roles. A separate signup session for بهار نادری (`usr-1008`) has no memberships. The card/task numbers below are navigation summaries for step 3.
+
+| Scenario | Route or input and expected result |
+| --- | --- |
+| Protected return | Signed out, open `/boards/br-204?review=step3#context` or `/teams/tm-101`. Login preserves the local destination through the alternate registration link. Sign in with the existing fixture, land on the original path, and reload to confirm the selected context. |
+| Dashboard | Signed in as نیلوفر, open `/`. Expect three team tiles and four accessible boards in total. سپیدار starts expanded, پارس‌نگار starts collapsed, and راه‌نو has no board disclosure. |
+| Team and board | Open `/teams/tm-101` for two tiles. `/boards/br-201` shows بازطراحی وب‌سایت with ۱۸ cards and ۲۷ tasks. `/teams/tm-102` shows two tiles and forces its sidebar group open while active. `/boards/br-204` shows راهنمای مشتریان with ۱۲ cards and ۲۱ tasks. `/boards/br-205` has zero cards and tasks. Board headers link back to the parent team. Click through and use Back/Forward to check the active route. |
+| Team filter | At `/`, in scope تیم‌ها, search `استودیو`. Expect only سپیدار and its two accessible boards. Search `راه نو` to match راه‌نو despite the space and find its zero-board tile. |
+| Board filter | In scope تابلوها, search `مشتري` using Arabic ي. Expect only راهنمای مشتریان under پارس‌نگار. Its group opens while the filter is active. Escape or Clear restores the previous disclosure. On `/teams/tm-101`, search `وب سایت` for one of two boards. An unmatched query shows zero results. |
+| Empty and restricted | `/teams/tm-103` has no accessible boards. `/boards/br-203`, `/boards/br-206` and `/teams/tm-104` show the same class of unavailable message as unknown IDs without sending restricted records in props. A signup session sees zero teams/boards and cannot open the populated team’s links directly. |
+| Viewport and keyboard | Review desktop at 1910 px and mobile at 389 px. Check the desktop sidebar at inline start, the mobile disclosure above the main content, active links, normal Tab exit from the filter, Escape clearing, and absence of horizontal overflow. |
+
+The sidebar and tiles read a single authorized `navigation` projection. Dashboard entry defaults to team search, team entry to board search. On a board, the preceding search context survives in the mounted layout. Board filtering matches visible names and temporarily opens matching groups. Step 4 introduces the Kanban canvas with lists and cards.
+
+| Check | Step 3 result |
+| --- | --- |
+| `node --input-type=module -` with focused deterministic assertions | Passed five groups covering fixture relationships and counts, protected returns and reload, unavailable routes and sanitized props, empty signup and allowed URLs, and reactive filters/disclosures. The checks used in-memory sessions and did not contact the preview server. |
+| `npm run build` | Passed on Vite 8.3.8. The production build emitted the overview, team, board, unavailable, login and registration chunks. |
+| `npm run lint` | Passed with zero warnings. |
+| `git -c core.safecrlf=false diff HEAD --check` and `git diff HEAD --exit-code -- package.json package-lock.json` | Passed. The package manifest and lockfile are unchanged. |
+| Browser and live-server verification | Passed at 1910 px and 389 px. Verified the team and board counts, two search scopes and Persian normalization, temporary group expansion, keyboard exit and clearing, active selection, protected return and reload, Back/Forward, empty and restricted views, and RTL layout without horizontal overflow. Restarted the live Vite preview on `127.0.0.1:5176` so it picked up the new Tailwind configuration. The desktop grid and single-column mobile grid passed after restart. The preview remains running for review. |
+
+Next step after step 3 approval is Step 4, static board with lists/cards and collapse. Eight steps remain in the 11-step plan.

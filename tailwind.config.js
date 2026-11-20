@@ -68,6 +68,16 @@ export default {
         control: 'var(--size-control)',
         icon: 'var(--size-icon)',
         mark: 'var(--size-mark)',
+        toolbar: 'var(--size-board-toolbar)',
+      },
+      gridTemplateColumns: {
+        workspace: 'repeat(auto-fill, minmax(min(100%, var(--size-tile-min)), 1fr))',
+      },
+      gridAutoRows: {
+        workspace: 'minmax(var(--size-tile-row), auto)',
+      },
+      transitionDuration: {
+        tile: 'var(--motion-tile)',
       },
       borderRadius: {
         card: 'var(--radius-card)',

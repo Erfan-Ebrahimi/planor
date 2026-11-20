@@ -1,7 +1,7 @@
 import fa from '../resources/js/lang/fa.js'
 import { validateLogin, validateRegistration } from '../resources/js/lib/authValidation.js'
 import { reviewAccount, reviewSignup } from '../resources/js/mocks/auth.js'
-import { workspacePage } from '../resources/js/mocks/workspace.js'
+import { isWorkspacePath, makeWorkspacePage } from './workspace.js'
 
 const storageKey = 'planor.auth-review.v1'
 const minimumPasswordLength = 12
@@ -59,17 +59,6 @@ function makeAuthPage(pathname, { returnTo, registrationClosed, errors = {} }) {
   }
 }
 
-function makeWorkspacePage(url, account) {
-  return {
-    ...workspacePage,
-    url,
-    props: {
-      ...workspacePage.props,
-      viewer: { id: account.id, name: account.name },
-    },
-  }
-}
-
 function response(page) {
   return {
     status: 200,
@@ -93,7 +82,7 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
     if (!value?.startsWith('/') || value.startsWith('//')) return '/'
     try {
       const location = new URL(value, origin)
-      if (location.origin === origin && location.pathname === '/') {
+      if (location.origin === origin && isWorkspacePath(location.pathname)) {
         return location.pathname + location.search + location.hash
       }
     } catch {

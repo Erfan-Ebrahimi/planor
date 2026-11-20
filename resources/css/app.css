@@ -65,6 +65,9 @@
     --size-icon: 20px;
     --size-mark: 32px;
     --size-auth-panel: 440px;
+    --size-board-toolbar: 68px;
+    --size-tile-min: 200px;
+    --size-tile-row: 120px;
 
     --radius-card: 2px;
     --radius-control: 3px;
@@ -77,6 +80,7 @@
     --shadow-popup: -1px -1px 3px #19232e, 1px 1px 3px #19232e;
     --layer-popup: 2000;
     --motion-loader: 600ms;
+    --motion-tile: 200ms;
   }
 
   html {

@@ -20,7 +20,9 @@ if (new URL(initialPage.url, window.location.origin).href !== window.location.hr
 router.on('navigate', ({ detail: { page, type } }) => {
   if (type !== 'history') return
   const resolved = auth.resolvePage(page.url)
-  if (resolved.url !== page.url) router.visit(resolved.url, { replace: true })
+  if (resolved.url !== page.url || resolved.component !== page.component || resolved.props.viewer?.id !== page.props.viewer?.id) {
+    router.visit(resolved.url, { replace: true })
+  }
 })
 
 createInertiaApp({

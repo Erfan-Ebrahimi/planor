@@ -36,5 +36,19 @@ defineProps({
       <path v-if="name === 'eye-off'" d="m4 4 16 16" />
     </template>
     <path v-else-if="name === 'close'" d="m6 6 12 12M18 6 6 18" />
+    <template v-else-if="name === 'team'">
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1m1-15a3 3 0 0 1 0 6m1 3a5 5 0 0 1 4 5v1" />
+    </template>
+    <template v-else-if="name === 'board'">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 8v8m6-8v5" />
+    </template>
+    <template v-else-if="name === 'search'">
+      <circle cx="10.5" cy="10.5" r="5.5" />
+      <path d="m15 15 4 4" />
+    </template>
+    <path v-else-if="name === 'chevron'" d="m14 6-6 6 6 6" />
+    <path v-else-if="name === 'back'" d="M4 12h15m-6-6 6 6-6 6" />
   </svg>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import fa from '../lang/fa.js'
+import { Link } from '../lib/inertia.js'
 import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
@@ -17,6 +18,10 @@ const props = defineProps({
     required: true,
   },
   sidebarOpen: Boolean,
+  contextTitle: {
+    type: String,
+    default: '',
+  },
 })
 
 defineEmits(['toggle-sidebar'])
@@ -47,7 +52,7 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
       <AppIcon name="sidebar" class="size-4" />
     </button>
 
-    <a
+    <Link
       :href="homeUrl"
       class="inline-flex shrink-0 items-center gap-1.5 rounded-control text-shell-title font-bold"
     >
@@ -55,11 +60,11 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
         <AppIcon name="brand" class="size-icon" />
       </span>
       {{ fa.product }}
-    </a>
+    </Link>
 
-    <span class="hidden min-w-0 truncate border-s border-subtle ps-3 text-body text-secondary shell:block">
-      {{ fa.shell.workspace }}
-    </span>
+    <bdi dir="auto" class="hidden min-w-0 truncate border-s border-subtle ps-3 text-body text-secondary shell:block">
+      {{ contextTitle || fa.shell.workspace }}
+    </bdi>
 
     <div class="ms-auto flex min-w-0 items-center gap-2">
       <span

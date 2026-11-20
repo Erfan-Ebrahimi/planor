@@ -1,3 +1,7 @@
+const number = new Intl.NumberFormat('fa-IR')
+const count = (value, noun) => `${number.format(value)} ${noun}`
+const filteredCount = (shown, total, noun) => `${number.format(shown)} از ${count(total, noun)}`
+
 export default {
   product: 'پلنور',
   shell: {
@@ -9,9 +13,32 @@ export default {
   },
   overview: {
     title: 'نمای کلی',
-    heading: 'فضای کاری شما',
-    description: 'تابلوهای تیم و کارهای جاری را از فضای کاری دنبال کنید.',
+    heading: 'تیم‌ها',
     documentTitle: 'نمای کلی فضای کاری | پلنور',
+  },
+  workspace: {
+    teamScope: 'تیم‌ها',
+    boardScope: 'تابلوها',
+    filterScope: 'محدودهٔ جست‌وجو',
+    searchTeams: 'جست‌وجوی تیم‌ها',
+    searchBoards: 'جست‌وجوی تابلوها',
+    clearSearch: 'پاک‌کردن جست‌وجو',
+    expandTeam: (name) => `نمایش تابلوهای ${name}`,
+    collapseTeam: (name) => `پنهان‌کردن تابلوهای ${name}`,
+    teamCount: (value) => count(value, 'تیم'),
+    boardCount: (value) => count(value, 'تابلو'),
+    teamResults: (shown, total) => filteredCount(shown, total, 'تیم'),
+    boardResults: (shown, total) => filteredCount(shown, total, 'تابلو'),
+    cardCount: (value) => count(value, 'کارت'),
+    taskCount: (value) => count(value, 'کار'),
+    noSearchResults: 'نتیجه‌ای برای این جست‌وجو پیدا نشد.',
+    noTeams: 'هنوز به تیمی دسترسی ندارید. تیم‌هایی که به آن‌ها دعوت شوید، اینجا نمایش داده می‌شوند.',
+    noBoards: 'این تیم هنوز تابلویی در دسترس شما ندارد.',
+    unavailableTeam: 'تیم در دسترس نیست',
+    unavailableBoard: 'تابلو در دسترس نیست',
+    workspacePath: 'مسیر فضای کاری',
+    backToOverview: 'بازگشت به نمای کلی',
+    documentTitle: (name) => `${name} | پلنور`,
   },
   auth: {
     loginTitle: 'ورود به پلنور',
