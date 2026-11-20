@@ -18,13 +18,14 @@ const props = defineProps({
     required: true,
   },
   sidebarOpen: Boolean,
+  profileOpen: Boolean,
   contextTitle: {
     type: String,
     default: '',
   },
 })
 
-defineEmits(['toggle-sidebar'])
+defineEmits(['toggle-sidebar', 'open-profile'])
 
 const initials = computed(() =>
   props.viewerName
@@ -68,15 +69,21 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
 
     <div class="ms-auto flex min-w-0 items-center gap-2">
       <slot />
-      <span
-        aria-hidden="true"
-        class="grid size-mark shrink-0 place-items-center rounded-round bg-card text-meta font-bold text-secondary"
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        :aria-expanded="profileOpen"
+        :aria-label="fa.profile.open(viewerName)"
+        class="group inline-flex min-h-control min-w-0 items-center gap-2 rounded-control text-secondary hover:text-primary shell:pe-2"
+        @click="$emit('open-profile')"
       >
-        {{ initials }}
-      </span>
-      <bdi dir="auto" class="sr-only truncate text-body text-secondary shell:not-sr-only">
-        {{ viewerName }}
-      </bdi>
+        <span aria-hidden="true" class="grid size-control shrink-0 place-items-center rounded-round border border-subtle bg-card text-meta font-bold group-hover:border-accent group-hover:bg-card-hover">
+          {{ initials }}
+        </span>
+        <bdi dir="auto" class="sr-only truncate text-body shell:not-sr-only">
+          {{ viewerName }}
+        </bdi>
+      </button>
     </div>
   </header>
 </template>

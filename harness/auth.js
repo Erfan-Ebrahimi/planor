@@ -144,6 +144,12 @@ export function createAuthHarness({ origin, storage, submitDelay = 700, clock = 
     }
 
     const route = location.pathname
+    if (route === '/logout' && method === 'post') {
+      if (signal?.aborted) return response(resolvePage('/login', false))
+      storage?.setItem(storageKey, JSON.stringify({ signupCreated: state.signupCreated }))
+      delete state.accountId
+      return response({ ...resolvePage('/login'), clearHistory: true })
+    }
     if (route === '/notifications/manage' && method === 'patch') {
       const back = safeReturnTo(location.searchParams.get('returnTo') || '/notifications')
       const account = currentAccount()
@@ -156,6 +162,7 @@ export function createAuthHarness({ origin, storage, submitDelay = 700, clock = 
       const back = action.startsWith('archive/') ? boardUrl + '/archive' : boardUrl
       if (!account || signal?.aborted) return response(resolvePage(back, false))
       const result = await boardStore.mutate(account.id, location, method, data, signal)
+      if (currentAccount() !== account || signal?.aborted) return response(resolvePage(back, false))
       if (result) return response(workspace(result.url, account, result.errors))
     }
     if (method !== 'post' || !isAuthPath(route)) throw new Error('Unsupported auth harness request')

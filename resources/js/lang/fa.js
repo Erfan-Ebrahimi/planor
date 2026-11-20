@@ -172,6 +172,16 @@ export default {
     hideSidebar: 'پنهان‌کردن نوار کناری',
     skipToContent: 'رفتن به محتوای اصلی',
   },
+  profile: {
+    open: (name) => `پروفایل ${name}`,
+    title: 'پروفایل کاربری',
+    name: 'نام کامل',
+    username: 'نام کاربری',
+    email: 'ایمیل',
+    logout: 'خروج از حساب',
+    loggingOut: 'در حال خروج…',
+    logoutError: 'خروج از حساب انجام نشد. دوباره تلاش کنید.',
+  },
   overview: {
     title: 'نمای کلی',
     heading: 'تیم‌ها',

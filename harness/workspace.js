@@ -154,7 +154,8 @@ export function makeWorkspacePage(url, account, boardStore = createBoardHarness(
     props: {
       ...workspacePage.props,
       errors,
-      viewer: { id: account.id, name: account.name },
+      viewer: { id: account.id, name: account.name, username: account.username, email: account.email },
+      logoutUrl: '/logout',
       navigation: { teams, current },
       workspaceRevision: boardStore.revision(),
       storageWarning: boardStore.isVolatile() ? fa.common.volatile : '',

@@ -10,7 +10,7 @@ import { useSidebar } from '../composables/useSidebar.js'
 import { useWorkspaceNavigation, workspaceFilterKey } from '../composables/useWorkspaceNavigation.js'
 import { useWorkspaceNavigationStatus } from '../composables/useWorkspaceNavigationStatus.js'
 import fa from '../lang/fa.js'
-import { Link, usePage } from '../lib/inertia.js'
+import { Link, router, usePage } from '../lib/inertia.js'
 
 defineOptions({ inheritAttrs: false })
 
@@ -21,6 +21,10 @@ const props = defineProps({
   },
   viewer: {
     type: Object,
+    required: true,
+  },
+  logoutUrl: {
+    type: String,
     required: true,
   },
   sidebarShown: {
@@ -43,10 +47,39 @@ const { query, scope, visibleTeams, isFiltered, sidebarTeams, toggleTeam } = use
 const contextTitle = computed(() => props.navigation.teams.find((team) => team.id === props.navigation.current.teamId)?.name)
 const page = usePage()
 const notificationOpen = ref(false)
+const profileOpen = ref(false)
+const logoutPending = ref(false)
+const logoutError = ref('')
 const actions = useNotificationActions(() => props.notifications)
 const { busy, error, failed, mark, retry } = actions
 const { pending: loadingPage, failed: failedPage, retry: retryPage } = useWorkspaceNavigationStatus()
-watch(() => page.url, () => { notificationOpen.value = false })
+watch(() => page.url, () => {
+  notificationOpen.value = false
+  profileOpen.value = false
+})
+
+function openProfile() {
+  logoutError.value = ''
+  profileOpen.value = true
+}
+
+function showLogoutError() {
+  logoutError.value = fa.profile.logoutError
+  return false
+}
+
+function logout() {
+  if (logoutPending.value) return
+  logoutPending.value = true
+  logoutError.value = ''
+  router.post(props.logoutUrl, {}, {
+    replace: true,
+    onError: showLogoutError,
+    onHttpException: showLogoutError,
+    onNetworkError: showLogoutError,
+    onFinish() { logoutPending.value = false },
+  })
+}
 
 provide(workspaceFilterKey, { visibleTeams, isFiltered })
 provide(notificationActionsKey, actions)
@@ -67,7 +100,9 @@ provide(notificationActionsKey, actions)
       :context-title="contextTitle"
       :sidebar-id="sidebarId"
       :sidebar-open="isOpen"
+      :profile-open="profileOpen"
       @toggle-sidebar="toggle"
+      @open-profile="openProfile"
     >
       <button
         v-if="notifications"
@@ -82,6 +117,31 @@ provide(notificationActionsKey, actions)
         <span v-if="notifications.unreadCount" aria-hidden="true" class="absolute end-0 top-0 rounded-round bg-auth-button ps-1 pe-1 text-meta font-bold text-on-auth-button">{{ fa.common.number(notifications.unreadCount) }}</span>
       </button>
     </ShellHeader>
+    <WorkspaceDialog v-if="profileOpen" :title="fa.profile.title" :busy="logoutPending" @close="profileOpen = false">
+      <dl class="grid gap-3 rounded-control border border-subtle bg-card p-3 text-body">
+        <div class="grid gap-1">
+          <dt class="text-meta text-secondary">{{ fa.profile.name }}</dt>
+          <dd class="[overflow-wrap:anywhere]"><bdi>{{ viewer.name }}</bdi></dd>
+        </div>
+        <div v-if="viewer.username" class="grid gap-1">
+          <dt class="text-meta text-secondary">{{ fa.profile.username }}</dt>
+          <dd class="[overflow-wrap:anywhere]"><bdi dir="ltr">{{ viewer.username }}</bdi></dd>
+        </div>
+        <div v-if="viewer.email" class="grid gap-1">
+          <dt class="text-meta text-secondary">{{ fa.profile.email }}</dt>
+          <dd class="[overflow-wrap:anywhere]"><bdi dir="ltr">{{ viewer.email }}</bdi></dd>
+        </div>
+      </dl>
+      <p v-if="logoutError" role="alert" class="text-body text-secondary">{{ logoutError }}</p>
+      <button
+        type="button"
+        :disabled="logoutPending"
+        class="min-h-control justify-self-end rounded-control border border-subtle bg-card px-4 text-body font-semibold hover:border-accent hover:bg-card-hover disabled:opacity-60"
+        @click="logout"
+      >
+        {{ logoutPending ? fa.profile.loggingOut : fa.profile.logout }}
+      </button>
+    </WorkspaceDialog>
     <WorkspaceDialog v-if="notificationOpen && notifications" :title="fa.notification.title" anchored @close="notificationOpen = false">
       <div class="flex flex-wrap items-center gap-2 text-meta text-secondary">
         <p role="status" class="flex flex-wrap gap-2"><span>{{ fa.notification.unreadCount(notifications.unreadCount) }}</span><span>{{ fa.notification.total(notifications.entries.length) }}</span></p>
