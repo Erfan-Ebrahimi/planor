@@ -2,7 +2,7 @@
 
 ## Planor visual theme
 
-The working Planor theme uses a dark canvas `#101719`, a dark elevated surface `#1b2829` and a mint highlight `#62d6a4`. Layered surfaces use tint, opacity and blur. Text and semantic due or error states retain their own contrast colors. The reduced-transparency preference uses opaque surfaces.
+Planor uses a near-black canvas `#07090d`, a dark blue-gray surface `#151b24` and a mint highlight `#62d6a4`. Frosted headers, panels and lists layer a translucent surface, a cool edge highlight and a `24px` backdrop blur. Text and semantic due or error states retain their own contrast colors. The reduced-transparency preference uses opaque surfaces with the same highlights.
 
 Vazirmatn variable is the primary UI typeface, Dana handles headings and Morabba is used for the Planor wordmark. The local Dana and Morabba webfonts came from the user-supplied font assets. Vazirmatn is distributed with the upstream SIL Open Font License.
 

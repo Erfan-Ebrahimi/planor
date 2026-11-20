@@ -120,3 +120,16 @@ export const reviewBoardContents = {
     cards: [card('cr-415', 'ls-311', 1000, 'مرور مسیر پیشنهادی همکاری', { assigneeId: kamran.id })],
   },
 }
+
+export const reviewArchivedCards = {
+  'br-201': [
+    { card: card('cr-421', 'ls-303', 2000, 'مرور الگوی قبلی صفحهٔ نمونه‌کار', { description: 'نسخهٔ پیشین الگو و یادداشت‌های بررسی برای مراجعهٔ گروه طراحی.', assigneeId: kamran.id, labelIds: ['lb-51'] }), originalListName: 'آمادهٔ بازبینی', archivedAt: '2026-11-19T08:35:00.000Z', archivedBy: niloufar.id },
+    { card: card('cr-422', 'ls-retired-301', 1000, 'جمع‌آوری بازخورد منوی قدیمی', { description: 'بازخورد گروه محتوا پیش از تغییر ناوبری صفحهٔ اصلی.', assigneeId: leila.id, labelIds: ['lb-52'] }), originalListName: 'بازبینی مسیرهای قدیمی', archivedAt: '2026-11-18T10:10:00.000Z', archivedBy: niloufar.id },
+  ],
+  'br-204': [
+    { card: card('cr-423', 'ls-308', 3000, 'بازبینی تصویر پیشین صفحهٔ رسید', { assigneeId: arman.id, labelIds: ['lb-57'] }), originalListName: 'پیش‌نویس راهنما', archivedAt: '2026-11-18T11:15:00.000Z', archivedBy: arman.id },
+  ],
+  'br-203': [
+    { card: card('cr-424', 'ls-311', 2000, 'مرور یادداشت جلسهٔ همکاری', { assigneeId: kamran.id }), originalListName: 'پیش‌نویس داخلی', archivedAt: '2026-11-18T13:20:00.000Z', archivedBy: kamran.id },
+  ],
+}

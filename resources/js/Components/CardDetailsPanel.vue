@@ -1,10 +1,14 @@
 <script setup>
 import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import fa from '../lang/fa.js'
+import ActivityLog from './ActivityLog.vue'
 import AppIcon from './AppIcon.vue'
 import BoardLabel from './BoardLabel.vue'
+import CardAttachments from './CardAttachments.vue'
 import CardChecklist from './CardChecklist.vue'
+import CardComments from './CardComments.vue'
 import JalaliDateTimePicker from './JalaliDateTimePicker.vue'
+import WorkspaceDialog from './WorkspaceDialog.vue'
 
 const props = defineProps({
   card: { type: Object, required: true },
@@ -16,13 +20,17 @@ const props = defineProps({
   errors: { type: Object, default: () => ({}) },
   errorSource: { type: String, default: null },
   canEdit: Boolean,
+  canComment: Boolean,
+  canArchive: Boolean,
   canMove: Boolean,
   busy: Boolean,
 })
-const emit = defineEmits(['close', 'save', 'save-due-date', 'done', 'open-move', 'add-task', 'update-task', 'move-task'])
+const emit = defineEmits(['close', 'save', 'save-due-date', 'done', 'open-move', 'add-task', 'update-task', 'move-task', 'attachment', 'comment', 'archive'])
 const heading = useTemplateRef('heading')
 const title = useTemplateRef('title')
 const invalidTitle = ref(false)
+const showActivity = ref(false)
+const confirmArchive = ref(false)
 
 function fields() {
   const { title, description, assigneeId, priority, labelIds } = props.card
@@ -94,6 +102,12 @@ function escape(event) {
           {{ card.completed ? fa.board.markUndone : fa.board.markDone }}
         </button>
         <span v-else-if="card.completed" class="text-submit">{{ fa.board.done }}</span>
+        <button type="button" class="inline-flex min-h-mark items-center gap-1 rounded-control ps-2 pe-2 text-accent hover:bg-card-hover" aria-haspopup="dialog" @click="showActivity = true">
+          <AppIcon name="activity" class="size-4" />{{ fa.activity.title }}
+        </button>
+        <button v-if="canArchive" type="button" :disabled="busy" aria-haspopup="dialog" class="inline-flex min-h-mark items-center gap-1 rounded-control ps-2 pe-2 text-secondary hover:bg-card-hover" @click="confirmArchive = true">
+          <AppIcon name="archive" class="size-4" />{{ fa.archive.archive }}
+        </button>
       </div>
     </header>
 
@@ -188,6 +202,34 @@ function escape(event) {
         @update="(...args) => $emit('update-task', ...args)"
         @move="$emit('move-task', $event)"
       />
+      <CardAttachments
+        :attachments="card.attachments"
+        :can-edit="canEdit"
+        :busy="busy"
+        :error="errorSource === 'attachments' ? errors.file : ''"
+        class="border-t border-subtle pt-3"
+        @change="(...args) => $emit('attachment', ...args)"
+      />
+      <CardComments
+        :comments="card.comments"
+        :members="members"
+        :can-comment="canComment"
+        :busy="busy"
+        :error="errorSource === 'comments' ? errors.comment : ''"
+        class="border-t border-subtle pt-3"
+        @change="(...args) => $emit('comment', ...args)"
+      />
+      <WorkspaceDialog v-if="showActivity" :title="fa.activity.title" @close="showActivity = false">
+        <ActivityLog :activity="card.activity" card-context />
+      </WorkspaceDialog>
+      <WorkspaceDialog v-if="confirmArchive" :title="fa.archive.archive" :busy="busy" @close="confirmArchive = false">
+        <p class="font-bold [overflow-wrap:anywhere]"><bdi dir="auto">{{ card.title }}</bdi></p>
+        <p class="text-secondary">{{ fa.archive.archiveConfirm }}</p>
+        <p v-if="errorSource === 'archive' && errors.board" role="alert" class="text-auth-error">{{ errors.board }}</p>
+        <button type="button" :disabled="busy" class="min-h-control w-fit rounded-control border border-border ps-3 pe-3 text-accent disabled:opacity-60" @click="$emit('archive')">
+          {{ busy ? fa.common.busy : fa.archive.archive }}
+        </button>
+      </WorkspaceDialog>
     </div>
   </aside>
 </template>

@@ -57,6 +57,13 @@ defineProps({
     <path v-else-if="name === 'plus'" d="M5 12h14M12 5v14" />
     <path v-else-if="name === 'check'" d="m5 12 4 4L19 6" />
     <path v-else-if="name === 'description'" d="M5 7h14M5 12h14M5 17h8" />
+    <path v-else-if="name === 'attachment'" d="m8 13 6.8-6.8a2.9 2.9 0 1 1 4.1 4.1l-8.5 8.5a4.5 4.5 0 0 1-6.4-6.4l8.4-8.4M8 13a1.5 1.5 0 0 0 2.1 2.1l5.6-5.6" />
+    <path v-else-if="name === 'comment'" d="M4 5h16v11h-9l-5 3v-3H4zm4 5h8m-8 3h5" />
+    <path v-else-if="name === 'bell'" d="M4 17h16l-2-3.5V9a6 6 0 0 0-12 0v4.5L4 17Zm6 3a2 2 0 0 0 4 0" />
+    <g v-else-if="name === 'activity'">
+      <circle cx="12" cy="12" r="8.5" /><path d="M12 7.5v5l3.5 2" />
+    </g>
+    <path v-else-if="name === 'archive'" d="M4 4h16v4H4zm1 4h14v12H5zm4 4h6" />
     <path v-else-if="name === 'grip'" d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" stroke-width="3" />
   </svg>
 </template>

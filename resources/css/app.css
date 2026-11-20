@@ -49,31 +49,32 @@
     --font-heading: Dana, var(--font-ui);
     --font-brand: Morabba, var(--font-heading);
 
-    --tone-canvas: #101719;
-    --tone-surface: #1b2829;
+    --tone-canvas: #07090d;
+    --tone-surface: #151b24;
     --tone-accent: #62d6a4;
+    --tone-glass-light: #d9e5f7;
     --color-canvas: var(--tone-canvas);
     --color-auth: transparent;
-    --color-header: color-mix(in srgb, var(--tone-surface) 84%, transparent);
-    --color-sidebar: color-mix(in srgb, var(--tone-surface) 75%, transparent);
+    --color-header: color-mix(in srgb, var(--tone-surface) 65%, transparent);
+    --color-sidebar: color-mix(in srgb, var(--tone-surface) 62%, transparent);
     --color-sidebar-item: color-mix(in srgb, var(--tone-canvas) 56%, var(--tone-surface));
     --color-sidebar-selected: color-mix(in srgb, var(--tone-accent) 20%, var(--tone-surface));
-    --color-tile: color-mix(in srgb, var(--tone-surface) 90%, transparent);
-    --color-list: color-mix(in srgb, var(--tone-surface) 72%, transparent);
-    --color-card: color-mix(in srgb, var(--tone-surface) 91%, #e3f5ec);
-    --color-card-hover: color-mix(in srgb, var(--tone-accent) 12%, var(--color-card));
+    --color-tile: color-mix(in srgb, var(--tone-surface) 68%, transparent);
+    --color-list: color-mix(in srgb, var(--tone-surface) 56%, transparent);
+    --color-card: color-mix(in srgb, var(--tone-surface) 87%, var(--tone-glass-light));
+    --color-card-hover: color-mix(in srgb, var(--tone-glass-light) 10%, var(--color-card));
     --color-card-selected: var(--color-sidebar-selected);
-    --color-detail: var(--tone-surface);
-    --color-detail-header: color-mix(in srgb, var(--tone-surface) 88%, transparent);
-    --color-popup: color-mix(in srgb, var(--tone-surface) 92%, #e3f5ec);
+    --color-detail: color-mix(in srgb, var(--tone-surface) 88%, transparent);
+    --color-detail-header: color-mix(in srgb, var(--tone-surface) 64%, transparent);
+    --color-popup: color-mix(in srgb, var(--tone-surface) 87%, transparent);
     --color-input: color-mix(in srgb, var(--tone-canvas) 70%, var(--tone-surface));
-    --color-text-primary: #ecf6f2;
-    --color-text-secondary: #c0d2cd;
-    --color-text-muted: #a4b7b1;
+    --color-text-primary: #f0f4fa;
+    --color-text-secondary: #c4cedd;
+    --color-text-muted: #a7b4c7;
     --color-link: var(--tone-accent);
     --color-accent: var(--tone-accent);
-    --color-border: #607772;
-    --color-border-subtle: color-mix(in srgb, #b8ded0 18%, transparent);
+    --color-border: #68768b;
+    --color-border-subtle: color-mix(in srgb, var(--tone-glass-light) 20%, transparent);
     --color-submit: var(--tone-accent);
     --color-cancel: #f89186;
     --color-auth-action: var(--tone-accent);
@@ -123,10 +124,11 @@
     --radius-panel: 18px;
     --radius-round: 50%;
 
-    --shadow-card: 0 10px 24px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(236 246 242 / 5%);
+    --shadow-card: 0 10px 28px rgb(0 0 0 / 28%), inset 0 1px 0 rgb(237 244 255 / 10%);
     --shadow-sidebar: -8px 0 28px rgb(0 0 0 / 12%);
     --shadow-popup: 0 16px 48px rgb(0 0 0 / 35%);
-    --blur-glass: 14px;
+    --blur-glass: 24px;
+    --glass-sheen: linear-gradient(155deg, color-mix(in srgb, var(--tone-glass-light) 12%, transparent), transparent 58%);
     --layer-popup: 2000;
     --motion-loader: 600ms;
     --motion-tile: 200ms;
@@ -140,11 +142,10 @@
   body {
     @apply bg-canvas font-sans text-body text-primary;
     min-block-size: 100dvh;
-    background-image: radial-gradient(
-      ellipse at top right,
-      color-mix(in srgb, var(--tone-accent) 13%, transparent),
-      transparent 46rem
-    ), linear-gradient(145deg, var(--tone-canvas) 56%, var(--tone-surface));
+    background-image:
+      radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--tone-glass-light) 10%, transparent), transparent 36rem),
+      radial-gradient(ellipse at 0% 100%, color-mix(in srgb, var(--tone-glass-light) 5%, transparent), transparent 32rem),
+      linear-gradient(145deg, var(--tone-canvas) 58%, var(--tone-surface));
   }
 
   h1,
@@ -165,6 +166,7 @@
   }
 
   .glass-surface {
+    background-image: var(--glass-sheen);
     backdrop-filter: blur(var(--blur-glass));
   }
 
@@ -177,7 +179,9 @@
   :root {
     --color-header: var(--tone-surface);
     --color-sidebar: var(--tone-surface);
+    --color-detail: var(--tone-surface);
     --color-detail-header: var(--tone-surface);
+    --color-popup: var(--tone-surface);
     --color-list: var(--tone-surface);
     --color-tile: var(--tone-surface);
     --blur-glass: 0px;

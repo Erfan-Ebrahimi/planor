@@ -55,9 +55,13 @@ function createCard(data, reset) {
         'opacity-60': listPreview?.sourceId === list.id,
       },
     ]"
-    class="flex shrink-0 flex-col gap-2 rounded-panel border border-subtle bg-list p-2 motion-safe:transition-[border-color,opacity,box-shadow] motion-safe:duration-board-drop"
+    class="glass-surface flex shrink-0 flex-col gap-2 rounded-panel border border-subtle bg-list p-2 motion-safe:transition-[border-color,opacity,box-shadow] motion-safe:duration-board-drop"
   >
-    <header class="flex flex-wrap items-center gap-1" data-sort-list-start>
+    <header
+      class="gap-1"
+      :class="collapsed && !composing ? 'grid min-w-0 justify-items-center text-center' : 'flex flex-wrap items-center'"
+      data-sort-list-start
+    >
       <button
         type="button"
         class="grid size-mark shrink-0 place-items-center rounded-control text-secondary hover:bg-sidebar-item"
@@ -69,7 +73,12 @@ function createCard(data, reset) {
       >
         <AppIcon name="chevron" class="size-4" :class="{ '-rotate-90': !collapsed }" />
       </button>
-      <h2 :id="`list-title-${list.id}`" class="min-w-0 flex-1 font-bold [overflow-wrap:anywhere]"><bdi dir="auto">{{ list.name }}</bdi></h2>
+      <h2
+        :id="`list-title-${list.id}`"
+        :title="collapsed ? list.name : undefined"
+        class="min-w-0 font-bold"
+        :class="collapsed && !composing ? 'max-w-full truncate' : 'flex-1 [overflow-wrap:anywhere]'"
+      ><bdi dir="auto">{{ list.name }}</bdi></h2>
       <span class="rounded-control bg-sidebar-item ps-1.5 pe-1.5 text-meta text-secondary">
         {{ filtered ? fa.board.searchResults(list.cards.length, list.totalCards) : fa.workspace.cardCount(list.totalCards) }}
       </span>

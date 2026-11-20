@@ -33,12 +33,21 @@ export const reviewTeamMemberships = [
   { userId: 'usr-1007', teamId: 'tm-101', role: 'manager', canView: true, sidebarCollapsed: false },
   { userId: 'usr-1007', teamId: 'tm-102', role: 'member', canView: true, sidebarCollapsed: true },
   { userId: 'usr-1007', teamId: 'tm-103', role: 'member', canView: true, sidebarCollapsed: false },
+  { userId: 'usr-1011', teamId: 'tm-101', role: 'member', canView: true, sidebarCollapsed: false },
+  { userId: 'usr-1012', teamId: 'tm-101', role: 'member', canView: true, sidebarCollapsed: false },
+  { userId: 'usr-1013', teamId: 'tm-102', role: 'member', canView: true, sidebarCollapsed: false },
 ]
 
 export const reviewBoardCapabilities = [
-  { userId: 'usr-1007', boardId: 'br-201', canView: true, canEdit: true },
-  { userId: 'usr-1007', boardId: 'br-202', canView: true, canEdit: true },
+  { userId: 'usr-1007', boardId: 'br-201', canView: true, canEdit: true, canComment: true },
+  { userId: 'usr-1007', boardId: 'br-202', canView: true, canEdit: true, canComment: true },
   { userId: 'usr-1007', boardId: 'br-203', canView: false },
-  { userId: 'usr-1007', boardId: 'br-204', canView: true },
-  { userId: 'usr-1007', boardId: 'br-205', canView: true, canEdit: true },
+  { userId: 'usr-1007', boardId: 'br-204', canView: true, canComment: true },
+  { userId: 'usr-1007', boardId: 'br-205', canView: true, canEdit: true, canComment: true },
+  { userId: 'usr-1011', boardId: 'br-201', canView: true, canComment: true },
+  { userId: 'usr-1011', boardId: 'br-203', canView: true, canEdit: true, canComment: true },
+  { userId: 'usr-1012', boardId: 'br-201', canView: true, canComment: true },
+  { userId: 'usr-1012', boardId: 'br-202', canView: true, canComment: true },
+  { userId: 'usr-1013', boardId: 'br-204', canView: true, canEdit: true, canComment: true },
+  { userId: 'usr-1013', boardId: 'br-205', canView: true },
 ]

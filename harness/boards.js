@@ -3,6 +3,10 @@ import fa from '../resources/js/lang/fa.js'
 import { byPosition, moveAt, positionBetween, priorities } from '../resources/js/lib/board.js'
 import { reviewBoardContents } from '../resources/js/mocks/boards.js'
 import { reviewBoardCapabilities, reviewBoards, reviewTeamMemberships } from '../resources/js/mocks/workspace.js'
+import { archiveCard, archiveFor, changeArchive } from './archive.js'
+import { cardFiles, changeAttachment, readUpload } from './attachments.js'
+import { changeComment } from './comments.js'
+import { eligibleNotifications, recordBoardEvent } from './events.js'
 
 const mutationPath = /^\/boards\/([^/]+)\/manage\/([^/]+)(?:\/([^/]+))?(?:\/([^/]+))?(?:\/([^/]+))?$/u
 const emptyBoard = { lists: [], cards: [], members: [], labels: [] }
@@ -12,45 +16,92 @@ export function boardPermissions(accountId, boardId) {
   const membership = reviewTeamMemberships.find(({ userId, teamId }) => userId === accountId && teamId === board?.teamId)
   const grant = reviewBoardCapabilities.find(({ userId, boardId: id }) => userId === accountId && id === boardId)
   const canView = Boolean(membership?.canView && grant?.canView)
-  return { canView, canEdit: canView && Boolean(grant.canEdit) }
+  const canEdit = canView && Boolean(grant.canEdit)
+  return { canView, canEdit, canComment: canView && Boolean(grant.canComment), canArchive: canEdit }
 }
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
-const storageKey = (accountId) => `planor.board-review.v1.${accountId}`
+const storageKey = 'planor.workspace-review.v2'
+const legacyKey = 'planor.board-review.v1.usr-1007'
 
 function isBoardContent(content) {
   return ['lists', 'cards', 'members', 'labels'].every((key) => Array.isArray(content?.[key]))
 }
 
-function readState(storage, accountId) {
+function readState(storage) {
+  let raw
   try {
-    const value = JSON.parse(storage?.getItem(storageKey(accountId)) || 'null')
-    if (value?.boards && Number.isSafeInteger(value.serial) && value.serial >= 0) return value
+    raw = [storage?.getItem(storageKey), storage?.getItem(legacyKey)]
   } catch {
-    // A malformed local snapshot falls back to the fictional seed.
+    return { state: { boards: {}, serial: 0 }, volatile: true }
   }
-  return { boards: {}, serial: 0 }
+  for (const item of raw) {
+    try {
+      const value = JSON.parse(item || 'null')
+      if (value?.boards && typeof value.boards === 'object' && !Array.isArray(value.boards)
+        && Number.isSafeInteger(value.serial) && value.serial >= 0) {
+        const { boards, serial } = value
+        const notifications = Array.isArray(value.notifications) ? value.notifications.filter((entry) => entry?.event?.boardId && typeof entry.event.at === 'string') : []
+        const notificationReads = typeof value.notificationReads === 'object' && value.notificationReads !== null ? value.notificationReads : {}
+        return { state: { boards, serial, notifications, notificationReads }, volatile: false }
+      }
+    } catch {
+      // If the newest snapshot is malformed, the previous seed or snapshot remains available.
+    }
+  }
+  return { state: { boards: {}, serial: 0 }, volatile: !storage }
 }
 
-export function createBoardHarness(storage) {
-  const sessions = new Map()
-
-  function stateFor(accountId) {
-    if (!sessions.has(accountId)) sessions.set(accountId, readState(storage, accountId))
-    return sessions.get(accountId)
-  }
+export function createBoardHarness(storage, clock = Date.now) {
+  const { state, volatile: unavailableAtStart } = readState(storage)
+  let volatile = unavailableAtStart
 
   function read(accountId, boardId) {
     if (!boardPermissions(accountId, boardId).canView) return null
-    const saved = stateFor(accountId).boards[boardId]
+    const saved = state.boards[boardId]
     return isBoardContent(saved) ? saved : reviewBoardContents[boardId] || emptyBoard
   }
 
-  function revision(accountId) {
-    return stateFor(accountId).serial
+  function persist() {
+    try {
+      storage?.setItem(storageKey, JSON.stringify(state))
+      volatile = !storage
+    } catch {
+      volatile = true
+    }
   }
 
-  function mutate(accountId, location, method, data) {
+  function inbox(accountId) {
+    const entries = eligibleNotifications(state, accountId, (id) => read(accountId, id))
+      .map((entry) => ({ ...entry, boardName: reviewBoards.find(({ id }) => id === entry.boardId)?.name }))
+    return { entries, unreadCount: entries.filter(({ read }) => !read).length, url: '/notifications', actionUrl: '/notifications/manage' }
+  }
+
+  function mark(entries, read) {
+    const changed = entries.filter((entry) => entry.read !== read)
+    if (!changed.length) return
+    state.notificationReads ??= {}
+    for (const entry of changed) state.notificationReads[entry.id] = read
+    state.serial += 1
+    persist()
+  }
+
+  function openCard(accountId, cardId) {
+    mark(inbox(accountId).entries.filter((entry) => entry.cardId === cardId && entry.cardUrl), true)
+  }
+
+  function changeInbox(accountId, data) {
+    const all = data?.all === true
+    if (typeof data?.read !== 'boolean' || (all ? data.id != null : typeof data.id !== 'string' || !data.id)) {
+      return { notifications: fa.notification.error }
+    }
+    const entries = inbox(accountId).entries.filter((entry) => all || entry.id === data.id)
+    if (!entries.length && !all) return { notifications: fa.notification.error }
+    mark(entries, data.read)
+    return {}
+  }
+
+  async function mutate(accountId, location, method, data, signal) {
     const match = location.pathname.match(mutationPath)
     if (!match) return null
 
@@ -58,30 +109,52 @@ export function createBoardHarness(storage) {
     const boardUrl = `/boards/${boardId}`
     const requestedCard = location.searchParams.get('card')
     const permissions = boardPermissions(accountId, boardId)
+    const responseUrl = (board) => {
+      if (resource === 'archive') return boardUrl + '/archive'
+      return board?.cards.some((card) => card.id === requestedCard) ? `/cards/${requestedCard}` : boardUrl
+    }
+    const initial = read(accountId, boardId)
+    const comment = resource === 'cards' && action === 'comments'
+    const attachment = resource === 'cards' && action === 'attachments'
+    const archival = resource === 'archive' || (resource === 'cards' && action === 'archive')
+    const allowed = archival ? permissions.canArchive : comment ? permissions.canComment : permissions.canEdit
+    if (!allowed) {
+      return { url: responseUrl(initial), errors: { [resource === 'archive' ? 'archive' : 'board']: fa.board.errors.restricted } }
+    }
+    const upload = attachment && method === 'post' && !itemId && initial?.cards.some((card) => card.id === id)
+      ? await readUpload(data, signal) : null
     const current = read(accountId, boardId)
-    const cardUrl = current?.cards.some((card) => card.id === requestedCard) ? `/cards/${requestedCard}` : null
-    const url = cardUrl || boardUrl
-    if (!permissions.canEdit) return { url, errors: { board: fa.board.errors.restricted } }
+    const url = responseUrl(current)
+    if (signal?.aborted) return { url, errors: {} }
 
-    const state = stateFor(accountId)
     const draft = clone(current)
     const nextSerial = state.serial + 1
-    const operation = { resource, id, action, itemId, method, boardId }
+    const operation = { resource, id, action, itemId, method, boardId, accountId, upload, now: new Date(clock()).toISOString() }
+    if (upload?.file) {
+      operation.uploadBytes = reviewBoards.flatMap(({ id }) => {
+        const board = state.boards[id] ?? reviewBoardContents[id]
+        return board ? [...board.cards, ...archiveFor(board, id).map(({ card }) => card)] : []
+      })
+        .flatMap(cardFiles).reduce((total, file) => total + file.size, 0)
+    }
     const result = applyMutation(draft, operation, data || {}, nextSerial)
     if (result.errors) return { url, errors: result.errors }
-    if (result.changed) {
+    if (result.changed && JSON.stringify(draft) !== JSON.stringify(current)) {
+      const recorded = recordBoardEvent(draft, operation, data || {}, result, nextSerial)
+      if (recorded) {
+        const created = recorded.recipients
+          .filter(({ recipientId }) => boardPermissions(recipientId, boardId).canView)
+          .map(({ recipientId, kind }) => ({ id: `nt-review-${nextSerial}-${recipientId}`, recipientId, kind, event: recorded.event, read: false }))
+        if (created.length) state.notifications = [...(state.notifications ?? []), ...created]
+      }
       state.boards[boardId] = draft
       state.serial = nextSerial
-      try {
-        storage?.setItem(storageKey(accountId), JSON.stringify(state))
-      } catch {
-        // Keep the current tab usable without storage.
-      }
+      persist()
     }
-    return { url: result.cardId ? `/cards/${result.cardId}` : url, errors: {} }
+    return { url: result.url ?? (result.cardId ? `/cards/${result.cardId}` : url), errors: {} }
   }
 
-  return { read, revision, mutate }
+  return { read, revision: () => state.serial, mutate, inbox, openCard, changeInbox, isVolatile: () => volatile }
 }
 
 const invalid = (key = 'board') => ({ errors: { [key]: key === 'title' || key === 'name' ? fa.board.errors.required : fa.board.errors.invalid } })
@@ -91,6 +164,7 @@ const appendPosition = (items) => positionBetween(byPosition(items).at(-1)?.posi
 
 function applyMutation(board, operation, data, serial) {
   const { resource, id, action, itemId, method, boardId } = operation
+  if (resource === 'archive') return changeArchive(board, operation, data)
   if (resource === 'order' && method === 'patch' && !itemId) {
     return applyOrder(board, boardId, id, action, data)
   }
@@ -137,7 +211,10 @@ function applyMutation(board, operation, data, serial) {
     const card = board.cards.find((card) => card.id === id)
     if (!card) return invalid()
     if (method === 'patch' && !action) return updateCard(board, card, data)
+    if (action === 'archive' && method === 'post' && !itemId) return archiveCard(board, card, operation)
     if (action === 'checklist') return updateChecklist(card, itemId, method, data, serial)
+    if (action === 'attachments') return changeAttachment(card, { ...operation, data, serial })
+    if (action === 'comments') return changeComment(card, board.members, { ...operation, data, serial })
   }
 
   return invalid()

@@ -69,7 +69,7 @@ const cardLabels = computed(() => props.labels.filter(({ id }) => props.card.lab
       </button>
     </div>
     <div
-      v-if="card.dueAt || card.completed || assignee || card.hasDescription || card.taskCount || card.priority !== 'normal'"
+      v-if="card.dueAt || card.completed || assignee || card.hasDescription || card.taskCount || card.attachmentCount || card.commentCount || card.priority !== 'normal'"
       class="flex flex-wrap items-center gap-2 text-meta text-secondary"
     >
       <DueDateBadge v-if="card.dueAt" :value="card.dueAt" :now="now" :completed="card.completed" />
@@ -84,6 +84,12 @@ const cardLabels = computed(() => props.labels.filter(({ id }) => props.card.lab
         <span class="sr-only">{{ fa.board.description }}</span>
       </span>
       <span v-if="card.taskCount">{{ fa.board.progress(card.completedTaskCount, card.taskCount) }}</span>
+      <span v-if="card.attachmentCount" class="inline-flex items-center gap-1" :title="fa.attachment.count(card.attachmentCount)">
+        <AppIcon name="attachment" class="size-4" /><span aria-hidden="true">{{ fa.common.number(card.attachmentCount) }}</span><span class="sr-only">{{ fa.attachment.count(card.attachmentCount) }}</span>
+      </span>
+      <span v-if="card.commentCount" class="inline-flex items-center gap-1" :title="fa.comment.count(card.commentCount)">
+        <AppIcon name="comment" class="size-4" /><span aria-hidden="true">{{ fa.common.number(card.commentCount) }}</span><span class="sr-only">{{ fa.comment.count(card.commentCount) }}</span>
+      </span>
       <bdi v-if="assignee" dir="auto" class="min-w-0 [overflow-wrap:anywhere]">{{ assignee.name }}</bdi>
     </div>
   </article>

@@ -10,7 +10,12 @@ try {
 } catch {
   // The review session can also run in memory.
 }
-const auth = createAuthHarness({ origin: window.location.origin, storage })
+const initialUrl = new URL(window.location.href)
+const auth = createAuthHarness({
+  origin: initialUrl.origin,
+  storage,
+  reviewRetry: initialUrl.searchParams.get('review') === 'retry',
+})
 const initialPage = auth.resolvePage(window.location.href)
 
 if (new URL(initialPage.url, window.location.origin).href !== window.location.href) {

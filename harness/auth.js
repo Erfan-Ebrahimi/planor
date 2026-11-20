@@ -1,6 +1,6 @@
 import fa from '../resources/js/lang/fa.js'
 import { validateLogin, validateRegistration } from '../resources/js/lib/authValidation.js'
-import { reviewAccount, reviewSignup } from '../resources/js/mocks/auth.js'
+import { reviewAccount, reviewCollaborator, reviewSignup } from '../resources/js/mocks/auth.js'
 import { isWorkspacePath, makeWorkspacePage } from './workspace.js'
 import { createBoardHarness } from './boards.js'
 
@@ -68,13 +68,14 @@ function response(page) {
   }
 }
 
-export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
+export function createAuthHarness({ origin, storage, submitDelay = 700, clock = Date.now, reviewRetry = false, navigationDelay = 450 }) {
   const state = readSession(storage)
-  const boardStore = createBoardHarness(storage)
+  const boardStore = createBoardHarness(storage, clock)
   const workspace = (url, account, errors) => makeWorkspacePage(url, account, boardStore, errors)
+  let failNextNavigation = reviewRetry
 
   function accounts() {
-    return state.signupCreated ? [reviewAccount, reviewSignup] : [reviewAccount]
+    return state.signupCreated ? [reviewAccount, reviewCollaborator, reviewSignup] : [reviewAccount, reviewCollaborator]
   }
 
   function currentAccount() {
@@ -101,20 +102,23 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
     }
   }
 
-  function resolvePage(url) {
+  function resolvePage(url, markRead = true) {
     const location = new URL(url, origin)
     const account = currentAccount()
+    const local = location.origin === origin && !location.pathname.startsWith('//')
 
-    if (isAuthPath(location.pathname)) {
+    if (local && isAuthPath(location.pathname)) {
       return account
         ? workspace('/', account)
         : makeAuthPage(location.pathname, authOptions(location))
     }
 
-    const returnTo = safeReturnTo(location.pathname + location.search + location.hash)
+    const localPath = local ? location.pathname + location.search + location.hash : '/'
+    const cardRoute = markRead && account && local && location.pathname.match(/^\/cards\/([A-Za-z\d_-]+)\/?$/u)
+    if (cardRoute) boardStore.openCard(account.id, cardRoute[1])
     return account
-      ? workspace(returnTo, account)
-      : makeAuthPage('/login', { returnTo })
+      ? workspace(localPath, account)
+      : makeAuthPage('/login', { returnTo: safeReturnTo(localPath) })
   }
 
   function beginSession(account) {
@@ -130,14 +134,28 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
   async function request({ method, url, data, signal }) {
     const location = new URL(url, origin)
     if (location.origin !== origin) throw new Error('Unsupported auth harness destination')
-    if (method === 'get') return response(resolvePage(url))
+    if (method === 'get') {
+      if (failNextNavigation && currentAccount() && !signal?.aborted) {
+        failNextNavigation = false
+        if (navigationDelay > 0) await new Promise((resolve) => setTimeout(resolve, navigationDelay))
+        if (!signal?.aborted) throw new Error('Local review transport interruption')
+      }
+      return response(resolvePage(url, !signal?.aborted))
+    }
 
     const route = location.pathname
+    if (route === '/notifications/manage' && method === 'patch') {
+      const back = safeReturnTo(location.searchParams.get('returnTo') || '/notifications')
+      const account = currentAccount()
+      if (!account || signal?.aborted) return response(resolvePage(back, false))
+      return response(workspace(back, account, boardStore.changeInbox(account.id, data)))
+    }
     if (route.includes('/manage/')) {
       const account = currentAccount()
-      const back = route.split('/manage/')[0]
-      if (!account || signal?.aborted) return response(resolvePage(back))
-      const result = boardStore.mutate(account.id, location, method, data)
+      const [boardUrl, action] = route.split('/manage/')
+      const back = action.startsWith('archive/') ? boardUrl + '/archive' : boardUrl
+      if (!account || signal?.aborted) return response(resolvePage(back, false))
+      const result = await boardStore.mutate(account.id, location, method, data, signal)
       if (result) return response(workspace(result.url, account, result.errors))
     }
     if (method !== 'post' || !isAuthPath(route)) throw new Error('Unsupported auth harness request')
@@ -176,7 +194,7 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
     if (!account) return response(makeAuthPage(route, { ...options, errors }))
 
     beginSession(account)
-    return response(workspace(options.returnTo, account))
+    return response(resolvePage(options.returnTo))
   }
 
   return { resolvePage, request }

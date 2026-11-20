@@ -67,6 +67,7 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
     </bdi>
 
     <div class="ms-auto flex min-w-0 items-center gap-2">
+      <slot />
       <span
         aria-hidden="true"
         class="grid size-mark shrink-0 place-items-center rounded-round bg-card text-meta font-bold text-secondary"

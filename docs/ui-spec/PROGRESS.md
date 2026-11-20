@@ -35,20 +35,21 @@ Source revision `8ef8da408677420c9a3a1ae967d3ca337c5c5466`. Source paths are 4ga
 - [x] Step 6. Added protected card detail routes, plain-text fields, a nullable assignee, card priority and labels, and checklist creation, editing, completion and ordering. The product specification was sufficient for steps 4–6. No sibling source was consulted for these steps.
 - [x] Step 7. Integrated Jalali due-date display and editing on cards, the shared Tehran clock, UTC-only mutations, and the authenticated picker review. The user approved `Asia/Tehran` and delegated library selection. The parent pinned `jalaali-js` 2.0.1 for conversion and kept the picker a Vue component.
 - [x] The combined review uses the requested dark glass theme, two dark base colors and a mint accent. The parent integrated the supplied Dana and Morabba fonts. Vazirmatn remains the primary UI typeface, Dana serves headings, and Morabba serves the Planor wordmark. [Planor theme tokens](design-tokens.md#planor-visual-theme)
+- [x] Steps 4–7 approved at `4e0918c`. Steps 8–11 passed the integrated checks and desktop and mobile browser review.
+- [x] The final theme uses a near-black canvas, blue-gray surfaces, a mint accent and stronger frosted glass. The collapsed column title stays on one line. [Planor visual theme](design-tokens.md#planor-visual-theme)
 
 ## Remaining
 
-- [ ] Review of the combined steps 4–7 candidate. Integrated picker browser acceptance is pending at desktop and mobile widths.
-- [ ] Steps 8–11. Attachments/comments, notifications/activity, archive/restore/deletion, and final states and consistency.
-- [ ] Parent owns browser QA, the preview at `127.0.0.1:5176`, and Git.
+- [ ] Final user review. The local Vite preview is available at `127.0.0.1:5176`.
 
 ## Pending decisions
 
 - **Account policy.** Confirm whether login accepts both username and email, registration password policy, initial display-name rules, production consent copy, and whether email verification is required. The review harness accepts email and a 3–16 character ASCII username, uses a mock 12-character password minimum, and assigns a known fictional Persian display name to the signup fixture. The consent line covers account creation. Real account policy and verification are pending.
 - **Workspace permissions.** Production team roles, private board rules and commenting permissions remain pending. The review harness models view access through fixture membership and board grants. Local disclosure changes survive Inertia navigation, and reload takes the supplied membership default.
+- **Files and notifications.** Production file types, size/retention rules and eligible in-app notification events remain open. The review uses limits for a local tab workspace and sends mentions or selected card events only to eligible mock recipients.
 - **Step 6, card details.** The review uses four priority levels, replacement of a single assignee, and a full-width panel at 800px and below. Confirm their final presentation during review.
 - **Date-only filter.** Future date-only filter semantics and the selected-day cutoff remain open. Current due-state comparisons use exact instants. [Planor date decisions](dates.md#planor-date-decisions)
-- **Step 10, archive.** Confirm which records can be archived, who can restore them, and the restore destination when the original list is unavailable.
+- **Archive.** The review permits card archive, restore and exact-name deletion for editors. Confirm production archive scope, lifecycle permissions, retention and placement when a list is unavailable.
 
 ## Verification
 
@@ -160,4 +161,46 @@ The existing `JalaliDateTimePicker.vue`, `DueDateBadge.vue` and `useDate.js` now
 | Browser acceptance | Passed on desktop and at 389 px for the four picker states, Saturday-first layout, RTL arrow navigation across a month, invalid input and recovery, Escape and focus return, date edits without losing the details draft, persisted UTC values, clearing after reload and a disabled viewer picker. Verified the loaded Dana, Morabba and Vazirmatn font faces and the glass effect with the reduced-transparency fallback. |
 | Production preview HTTP smoke check | Passed for login, board, card and calendar review routes, bundled entry script and all five WOFF2 assets. The live development preview was restarted on `127.0.0.1:5176` to load the final theme and remains available for review. |
 
-Next step after user approval is Step 8, attachments and comments with @mentions. Four steps remain in the plan.
+### Steps 8–10 implementation
+
+- [x] Steps 4–7 approved at `4e0918c`. The user approved steps 8–11 as one batch. This work used the written specification. No additional sibling source reads were needed.
+- [x] Step 8. Card attachments support a file chooser, inert preview, download, rename and remove. Plain-text comments support person mentions and author-only changes. `br-204` grants comment access independently of edit access.
+- [x] Step 9. The workspace shell has a notification preview and the protected `/notifications` center. Board and card activity retain historical actor, title and timestamps. Accepted mutations create events in the local mock. The mock inbox limits access by recipient and current board grant, and opening an active card marks its related notifications read.
+- [x] Step 10. Board archive routes list archived cards separately from active counts. Editors archive, restore and permanently remove. Restore appends to the original list when it exists and otherwise requires a valid list in the same board. Exact-name deletion compares the full unmodified string. Viewer access exposes only the archive index and its metadata.
+
+The workspace mock upgrades the prior `planor.board-review.v1.usr-1007` snapshot on the next accepted write. The shared `planor.workspace-review.v2` snapshot is isolated to the review tab. It allows controlled fixture identities to share an audit trail while inbox reads remain recipient-scoped. Files are capped at 256 KiB each, 10 per card and 768 KiB in the tab workspace, including archived content. PNG and JPEG are checked for raster headers and dimensions. UTF-8 text is displayed as text and delivered as a download. Filenames are normalized and path separators and control characters are disallowed. A blocked or full storage environment keeps the current page usable and shows a warning that changes may be lost on reload.
+
+| Focused check | Result |
+| --- | --- |
+| Step 8, `node --input-type=module -` | Passed legacy snapshot, safe previews, file rejection and retry, rename/remove, plain-text comments, stable mention ranges, authorship, separate viewer permissions, reload and private access. |
+| Step 9, `node --input-type=module -` | Passed notification visibility, card auto-read, row and bulk read state, mention fan-out between controlled fixture recipients, reload, immutable activity and invalid/no-op atomicity. |
+| Step 10, `node --input-type=module -` | Passed archive route and Jalali date, card and attachment preservation, count changes, private and read-only access, original and fallback restore, exact-name deletion, activity and reload. |
+
+### Step 11 final candidate
+
+The final pass covers shell navigation loading and retry, unavailable routes, empty and filtered states, recoverable upload feedback, local storage warnings, and preserved auth, card operations, ordering and Jalali behavior. The harness transport, scoped projections and archive/file/comment/event operations are in `harness/`. Review seeds are in `resources/js/mocks/`. The UI adds `Pages/Workspace/Archive.vue` and `Pages/Workspace/Notifications.vue` and updates the board, card panel and persistent shell. Shared presentational components handle files, comment composition, notifications, activity and dialogs. The package manifest and lockfile are unchanged from `4e0918c`.
+
+| Scenario | Local review URL and expectation |
+| --- | --- |
+| Attachments and comments | `/cards/cr-401` as نیلوفر رستگار. Expect one attachment (`file-701`), two comments (`cm-801`, `cm-802`) and three checklist rows. Preview and download the seeded text, then upload a fictional UTF-8 note or PNG/JPEG. Test a disallowed file, then choose a valid one, rename it without changing the extension, and remove it. Only `cm-802` has edit/delete for this viewer. In the comment field type `@کام`, choose کامران یوسفی with arrows and Enter, and verify Escape dismisses suggestions. |
+| Viewer and restricted | `/cards/cr-411` can be read and commented on, but card, file and archive editing remain disabled or unavailable. `cm-803` belongs to another author. `/boards/br-204/archive` lists one read-only record (`cr-423`). `/cards/cr-415`, `/cards/cr-424` and `/boards/br-203/archive` are unavailable to نیلوفر. |
+| Inbox and activity | Sign in as نیلوفر directly to `/notifications` from a fresh review tab. Expect three records (`nt-902`, `nt-901`, `nt-903`) and two unread. In board scope بازطراحی وب‌سایت with Unread selected, search `يوسفی` to match `nt-901`, then open its card to mark it read. Check the bell preview, row and bulk read controls, no-result filtering, and contextual activity on `/boards/br-201` and `/cards/cr-401`. The seeded activity counts before mutations are five for the board and four for the card. |
+| Mention recipient | In an isolated review tab, send a mention to کامران یوسفی from `cr-401`. Clear just the review authentication key `planor.auth-review.v1` in that tab's Session Storage, keeping `planor.workspace-review.v2`. Reload `/notifications` and sign in as `k.yousefi` / `Yousefi-Review-57!` (fictional `kamran.yousefi@example.org`). Expect seeded `nt-904` and the new unread mention, with no نیلوفر notifications. Separate tabs have independent data. |
+| Archive and delete | `/boards/br-201/archive` starts with `cr-421` and `cr-422`. The active board starts at 7 cards and 9 tasks. Archiving `cr-401` changes the active counts to 6 and 6, and the deep link offers the archive view. Restore `cr-401` to `ls-301` or use `cr-422` to check required fallback destination. For `cr-421`, entering its name with trailing whitespace keeps permanent delete disabled. The exact name is `مرور الگوی قبلی صفحهٔ نمونه‌کار`. Use an isolated tab for this mutation. |
+| Empty and recoverable | The existing signup fixture has no teams or inbox entries. `/teams/tm-103` has no boards, and `/boards/br-205` starts with no lists, activity or archive records. Signed in, reload `/?review=retry` and open a workspace link. The fixture delays the next GET by 450 ms and interrupts it once. The localized retry resumes the same destination. Subsequent GETs succeed normally. |
+| Keyboard and responsive | Review at 1910 px and 389 px and use roles and Persian accessible labels to locate buttons, listboxes, text fields and dialogs. Check the bell and archive dialog focus, keyboard mention selection, Escape, caret and focus return, usable scroll, the existing mobile card pane, and preserved auth and Jalali review routes. |
+
+| Check | Final candidate result |
+| --- | --- |
+| `node --input-type=module -`, isolated harness assertions | Passed steps 8–10 again against the integrated transport. Passed interrupted navigation/retry, protected returns, empty data, create → Jalali due date → upload → archive → restore, corrupt-new/valid-legacy snapshot recovery, and blocked/quota-limited storage. |
+| `node --input-type=module -`, targeted Vue and ordering assertions | Passed compilation of 15 affected SFCs and recompilation of the edited form components, notification filtering and no-results projection, keyboard mention selection/dismissal, and prior fractional ordering with inaccessible or no-op moves. |
+| `node --input-type=module -`, file validation | Passed UTF-8 tabs and line breaks plus rejection of embedded ASCII and C1 controls. |
+| `npm run build` | Passed with exit code 0. Vite 8.3.8 transformed 639 modules and built in 1.41s, including the Archive and Notifications chunks alongside the prior authenticated and public routes. |
+| `npm run lint` | Passed with exit code 0 and zero warnings after correcting the control-character regex flagged in the first run. |
+| `git -c core.safecrlf=false diff HEAD --check` and `git diff HEAD --exit-code -- package.json package-lock.json` | Passed with exit code 0. |
+| Browser acceptance | Passed on desktop and at 389 px. Verified safe preview and local upload, rename and reload, author-only comment editing, keyboard mentions, notification inbox and read-state retention, scoped activity, archiving and both restore destinations, exact-name delete gating, empty cases, access restrictions, localized pending and retry states, and a clean final browser console. The isolated harness executed permanent deletion. |
+| Browser theme check | Passed. Confirmed the `#07090d` canvas, `#151b24` elevated surface, a neutral background glow, `24px` blur and the opaque reduced-transparency treatment, a readable collapsed column title and no horizontal overflow at 389 px. |
+| `node --input-type=module -`, route assertions | Passed the generic signed-in not-found view, distinct resource errors, protected return and origin guard, and the notification route. Browser reload of an unknown path displayed the not-found page and returned to the overview through its link. |
+| Production preview HTTP | Passed the RTL HTML for login, board, card, notifications, archive, Jalali review and an unknown route, plus the built entry script, stylesheet and module preload. |
+
+Next is the final review at the end of Step 11. No implementation steps remain in the approved sequence.

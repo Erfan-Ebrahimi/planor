@@ -1,10 +1,12 @@
 <script setup>
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import ActivityLog from '../../Components/ActivityLog.vue'
 import AppIcon from '../../Components/AppIcon.vue'
 import BoardList from '../../Components/BoardList.vue'
 import CardDetailsPanel from '../../Components/CardDetailsPanel.vue'
 import InlineTitleForm from '../../Components/InlineTitleForm.vue'
 import MoveDialog from '../../Components/MoveDialog.vue'
+import WorkspaceDialog from '../../Components/WorkspaceDialog.vue'
 import WorkspaceLayout from '../../Layouts/WorkspaceLayout.vue'
 import { useDueClock } from '../../composables/useDate.js'
 import { useSortable } from '../../composables/useSortable.js'
@@ -49,6 +51,7 @@ const canvas = useTemplateRef('canvas')
 const boardTitle = useTemplateRef('boardTitle')
 const liveStatus = ref('')
 const moveRequest = ref(null)
+const showActivity = ref(false)
 const listItems = computed(() => props.boardWorkspace.lists.map((list) => ({ ...list, parentId: board.value.id })))
 const cardItems = computed(() => props.boardWorkspace.lists.flatMap((list) => list.cards.map((card) => ({
   id: card.id,
@@ -127,28 +130,48 @@ function moveTask(payload) {
   mutate(`order/checklist/${selected.value.id}`, payload, { onSuccess: () => { liveStatus.value = fa.board.moved } })
 }
 
+function changeCollaboration(resource, method, itemId, data, onSuccess) {
+  const item = itemId ? `/${itemId}` : ''
+  mutate(`cards/${selected.value.id}/${resource}${item}`, data, {
+    method,
+    source: resource,
+    onSuccess,
+    allowed: resource === 'comments' ? props.boardWorkspace.capabilities.canComment : canEdit.value,
+    multipart: resource === 'attachments' && method === 'post',
+  })
+}
+
+function archiveSelected() {
+  mutate(`cards/${selected.value.id}/archive`, {}, { method: 'post', source: 'archive', allowed: props.boardWorkspace.capabilities.canArchive })
+}
+
 watch(() => props.boardWorkspace.id, () => {
   query.value = ''
   localCollapse.value = {}
   creatingList.value = false
   errors.value = {}
   moveRequest.value = null
+  showActivity.value = false
 })
 
-function mutate(path, data, { method = 'patch', onSuccess, source = null } = {}) {
-  if (!canEdit.value || busy.value) return
+function mutate(path, data, { method = 'patch', onSuccess, source = null, allowed = canEdit.value, multipart = false } = {}) {
+  if (!allowed || busy.value) return
   busy.value = true
   errors.value = {}
   liveStatus.value = ''
   errorSource.value = source
   const context = selected.value ? `?card=${encodeURIComponent(selected.value.id)}` : ''
   let succeeded = false
-  router[method](`${props.boardWorkspace.actionUrl}/${path}${context}`, data, {
+  router.visit(`${props.boardWorkspace.actionUrl}/${path}${context}`, {
+    method,
+    data,
+    forceFormData: multipart,
     preserveState: true,
     preserveScroll: true,
     onError: (messages) => { errors.value = messages },
     onNetworkError() {
-      errors.value = { board: fa.board.errors.network }
+      const field = source === 'attachments' ? 'file' : source === 'comments' ? 'comment' : 'board'
+      errors.value = { [field]: fa.board.errors.network }
       return false
     },
     onSuccess() { succeeded = true },
@@ -218,6 +241,13 @@ function toggleDone(card) {
         <span>{{ fa.workspace.taskCount(board.taskCount) }}</span>
         <span v-if="!canEdit">{{ fa.board.viewOnly }}</span>
       </p>
+      <button type="button" class="inline-flex min-h-mark items-center gap-1 rounded-control ps-2 pe-2 text-accent hover:bg-card-hover" aria-haspopup="dialog" @click="showActivity = true">
+        <AppIcon name="activity" class="size-4" />{{ fa.activity.title }}
+      </button>
+      <Link :href="boardWorkspace.archiveUrl" class="inline-flex min-h-mark items-center gap-1 rounded-control ps-2 pe-2 text-accent hover:bg-card-hover">
+        <AppIcon name="archive" class="size-4" />{{ fa.archive.shortTitle }}
+        <span v-if="boardWorkspace.archiveCount">{{ fa.common.number(boardWorkspace.archiveCount) }}</span>
+      </Link>
     </div>
   </header>
 
@@ -283,6 +313,8 @@ function toggleDone(card) {
       :errors="errors"
       :error-source="errorSource"
       :can-edit="canEdit"
+      :can-comment="boardWorkspace.capabilities.canComment"
+      :can-archive="boardWorkspace.capabilities.canArchive"
       :can-move="canMoveSelected"
       :busy="busy"
       @close="closeCard"
@@ -293,6 +325,9 @@ function toggleDone(card) {
       @add-task="addTask"
       @update-task="updateTask"
       @move-task="moveTask"
+      @attachment="(...args) => changeCollaboration('attachments', ...args)"
+      @comment="(...args) => changeCollaboration('comments', ...args)"
+      @archive="archiveSelected"
     />
   </div>
   <p class="sr-only" aria-live="polite">{{ liveStatus }}</p>
@@ -305,4 +340,7 @@ function toggleDone(card) {
     @close="moveRequest = null"
     @move="confirmMove"
   />
+  <WorkspaceDialog v-if="showActivity" :title="fa.activity.title" @close="showActivity = false">
+    <ActivityLog :activity="boardWorkspace.activity" @open="showActivity = false" />
+  </WorkspaceDialog>
 </template>

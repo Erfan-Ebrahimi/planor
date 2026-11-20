@@ -14,3 +14,11 @@ export const reviewSignup = {
   username: 'b.naderi',
   password: 'Bahar-Review-48!',
 }
+
+export const reviewCollaborator = {
+  id: 'usr-1011',
+  name: 'کامران یوسفی',
+  email: 'kamran.yousefi@example.org',
+  username: 'k.yousefi',
+  password: 'Yousefi-Review-57!',
+}
