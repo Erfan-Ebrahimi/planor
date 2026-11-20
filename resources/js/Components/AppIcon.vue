@@ -49,6 +49,14 @@ defineProps({
       <path d="m15 15 4 4" />
     </template>
     <path v-else-if="name === 'chevron'" d="m14 6-6 6 6 6" />
+    <g v-else-if="name === 'calendar'">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M7 3v4m10-4v4M3 10h18m-13 5h2m4 0h2" />
+    </g>
     <path v-else-if="name === 'back'" d="M4 12h15m-6-6 6 6-6 6" />
+    <path v-else-if="name === 'plus'" d="M5 12h14M12 5v14" />
+    <path v-else-if="name === 'check'" d="m5 12 4 4L19 6" />
+    <path v-else-if="name === 'description'" d="M5 7h14M5 12h14M5 17h8" />
+    <path v-else-if="name === 'grip'" d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" stroke-width="3" />
   </svg>
 </template>

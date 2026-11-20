@@ -2,6 +2,7 @@ import fa from '../resources/js/lang/fa.js'
 import { validateLogin, validateRegistration } from '../resources/js/lib/authValidation.js'
 import { reviewAccount, reviewSignup } from '../resources/js/mocks/auth.js'
 import { isWorkspacePath, makeWorkspacePage } from './workspace.js'
+import { createBoardHarness } from './boards.js'
 
 const storageKey = 'planor.auth-review.v1'
 const minimumPasswordLength = 12
@@ -69,6 +70,8 @@ function response(page) {
 
 export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
   const state = readSession(storage)
+  const boardStore = createBoardHarness(storage)
+  const workspace = (url, account, errors) => makeWorkspacePage(url, account, boardStore, errors)
 
   function accounts() {
     return state.signupCreated ? [reviewAccount, reviewSignup] : [reviewAccount]
@@ -104,13 +107,13 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
 
     if (isAuthPath(location.pathname)) {
       return account
-        ? makeWorkspacePage('/', account)
+        ? workspace('/', account)
         : makeAuthPage(location.pathname, authOptions(location))
     }
 
     const returnTo = safeReturnTo(location.pathname + location.search + location.hash)
     return account
-      ? makeWorkspacePage(returnTo, account)
+      ? workspace(returnTo, account)
       : makeAuthPage('/login', { returnTo })
   }
 
@@ -130,6 +133,13 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
     if (method === 'get') return response(resolvePage(url))
 
     const route = location.pathname
+    if (route.includes('/manage/')) {
+      const account = currentAccount()
+      const back = route.split('/manage/')[0]
+      if (!account || signal?.aborted) return response(resolvePage(back))
+      const result = boardStore.mutate(account.id, location, method, data)
+      if (result) return response(workspace(result.url, account, result.errors))
+    }
     if (method !== 'post' || !isAuthPath(route)) throw new Error('Unsupported auth harness request')
     if (submitDelay > 0) await new Promise((resolve) => setTimeout(resolve, submitDelay))
     if (signal?.aborted || currentAccount()) return response(resolvePage(url))
@@ -166,7 +176,7 @@ export function createAuthHarness({ origin, storage, submitDelay = 700 }) {
     if (!account) return response(makeAuthPage(route, { ...options, errors }))
 
     beginSession(account)
-    return response(makeWorkspacePage(options.returnTo, account))
+    return response(workspace(options.returnTo, account))
   }
 
   return { resolvePage, request }

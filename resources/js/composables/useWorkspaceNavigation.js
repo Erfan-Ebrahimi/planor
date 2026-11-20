@@ -2,7 +2,7 @@ import { computed, ref, watch } from 'vue'
 
 export const workspaceFilterKey = Symbol('workspaceFilter')
 
-function normalizeName(value) {
+export function normalizeName(value) {
   return value.normalize('NFKC')
     .replace(/[يى]/gu, 'ی')
     .replace(/ك/gu, 'ک')

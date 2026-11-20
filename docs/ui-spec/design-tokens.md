@@ -1,5 +1,13 @@
 # Design tokens
 
+## Planor visual theme
+
+The working Planor theme uses a dark canvas `#101719`, a dark elevated surface `#1b2829` and a mint highlight `#62d6a4`. Layered surfaces use tint, opacity and blur. Text and semantic due or error states retain their own contrast colors. The reduced-transparency preference uses opaque surfaces.
+
+Vazirmatn variable is the primary UI typeface, Dana handles headings and Morabba is used for the Planor wordmark. The local Dana and Morabba webfonts came from the user-supplied font assets. Vazirmatn is distributed with the upstream SIL Open Font License.
+
+## 4ga reference tokens
+
 These values describe the source palette and sizing. They serve as a reference for a visually distinct Planor design.
 
 ## Theme mechanics

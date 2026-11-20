@@ -45,4 +45,11 @@ Sources: `client/src/components/CardModal/CardModal.jsx`, `client/src/components
 
 Event message bodies can include values formatted by the shared activity translation renderer. Exact locale-specific formatting of date values inside those sentences is **Unverified** within the client-only scope. Source: `client/src/components/ActivityMessage/ActivityMessage.jsx`.
 
-For Planor, calendar and digit formatting belong at the display/input boundary. Preserve authenticated event instants and comparisons independently. The timezone for a due date when members work across zones, date-only due semantics and Persian digit display policy remain product decisions. Exact datepicker keyboard and visual behavior in a browser is **Unverified**.
+## Planor date decisions
+
+- Stage 7 uses `jalaali-js` 2.0.1 for calendar arithmetic and a native Vue date and time picker. Entry and display use `Asia/Tehran` for all members. The picker returns a Gregorian ISO 8601 UTC instant or `null`.
+- Human-readable dates display Persian digits and month names. The week begins on Saturday. An unset due-date editor starts on the current Tehran calendar day at noon.
+- The picker uses arrow keys for day and week navigation, Home and End for week bounds, and Page Up and Page Down to switch months. Shift with Page Up or Page Down switches years. Typing a date and time remains available. An invalid or nonexistent local time stays in the editor for correction.
+- Board summaries show the Jalali date and a full Jalali date-time tooltip. Details show the full date-time and allow eligible editors to save or clear it separately from the card fields. Completed cards retain a neutral date. The board refreshes deadline states at the warning and overdue boundaries, on focus, and at Tehran midnight.
+- The authenticated local review at `/review/jalali` shows empty, selected, overdue and disabled examples with a fixed clock.
+- Date-only filtering and the cutoff for a future day-based filter remain open. The initial board uses the exact due instant for status.

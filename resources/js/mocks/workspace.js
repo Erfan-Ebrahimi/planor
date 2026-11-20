@@ -21,12 +21,12 @@ export const reviewTeams = [
 ]
 
 export const reviewBoards = [
-  { id: 'br-201', teamId: 'tm-101', name: 'بازطراحی وب‌سایت', cardCount: 18, taskCount: 27 },
-  { id: 'br-202', teamId: 'tm-101', name: 'محتوای شبکه‌های اجتماعی', cardCount: 8, taskCount: 11 },
-  { id: 'br-203', teamId: 'tm-101', name: 'طرح‌های در دست بررسی', cardCount: 5, taskCount: 9 },
-  { id: 'br-204', teamId: 'tm-102', name: 'راهنمای مشتریان', cardCount: 12, taskCount: 21 },
-  { id: 'br-205', teamId: 'tm-102', name: 'بازخورد کاربران', cardCount: 0, taskCount: 0 },
-  { id: 'br-206', teamId: 'tm-104', name: 'برنامه تولید پاییز', cardCount: 7, taskCount: 14 },
+  { id: 'br-201', teamId: 'tm-101', name: 'بازطراحی وب‌سایت' },
+  { id: 'br-202', teamId: 'tm-101', name: 'محتوای شبکه‌های اجتماعی' },
+  { id: 'br-203', teamId: 'tm-101', name: 'طرح‌های در دست بررسی' },
+  { id: 'br-204', teamId: 'tm-102', name: 'راهنمای مشتریان' },
+  { id: 'br-205', teamId: 'tm-102', name: 'بازخورد کاربران' },
+  { id: 'br-206', teamId: 'tm-104', name: 'برنامه تولید پاییز' },
 ]
 
 export const reviewTeamMemberships = [
@@ -36,9 +36,9 @@ export const reviewTeamMemberships = [
 ]
 
 export const reviewBoardCapabilities = [
-  { userId: 'usr-1007', boardId: 'br-201', canView: true },
-  { userId: 'usr-1007', boardId: 'br-202', canView: true },
+  { userId: 'usr-1007', boardId: 'br-201', canView: true, canEdit: true },
+  { userId: 'usr-1007', boardId: 'br-202', canView: true, canEdit: true },
   { userId: 'usr-1007', boardId: 'br-203', canView: false },
   { userId: 'usr-1007', boardId: 'br-204', canView: true },
-  { userId: 'usr-1007', boardId: 'br-205', canView: true },
+  { userId: 'usr-1007', boardId: 'br-205', canView: true, canEdit: true },
 ]

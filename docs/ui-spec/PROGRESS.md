@@ -22,29 +22,33 @@ Source revision `8ef8da408677420c9a3a1ae967d3ca337c5c5466`. Source paths are 4ga
 ## Done
 
 - [x] Step 1. Added Vue single-file components, the Inertia adapter boundary, a local Vite entry with static Inertia page props, Tailwind tokens, and the signed-in shell at `/`.
-- [x] The document is Persian and RTL. Copy lives in `resources/js/lang/fa.js`. The only font setting is the system fallback in `--font-ui`.
+- [x] Step 1 set the Persian RTL document, the shared dictionary in `resources/js/lang/fa.js`, and a system font fallback. The approved typography for the combined review is recorded below.
 - [x] The sidebar opens at inline start on desktop. At widths of 600px or less it starts closed and opens above the content using the same toggle. The 601px boundary is shared by the layout and the disclosure logic. The preferences prop sets the default desktop disclosure and changes made in the harness are local to the mounted shell.
 - [x] Step 1 uses the documented Default palette. The spec named some shell color families without exact values. Read only the Default theme lines in the sibling `client/src/colors.css` to confirm the sidebar item and selected colors, popup shadow, and border colors.
 - [x] Step 1 approved. Step 2 adds Persian login and registration at `/login` and `/register`, with the real Inertia adapter and a local mock transport in the Vite harness. Added no dependencies.
 - [x] Step 2 source checks resolved the username format and which fields receive focus and invalid styling on credential rejection. Consulted only the relevant lines of `client/src/utils/validator.js` and `client/src/components/Login/Login.jsx`. Consulted `client/src/colors.css` for the exact auth-button and error colors omitted from the spec. The auth button uses the darker source blue for text contrast.
 - [x] Step 2 approved. Step 3 adds the team overview, team boards, board context header and restricted-route view, using a persistent workspace layout with an RTL navigation tree and live name filters. The baseline is `227dc16`.
 - [x] Step 3 source checks resolved how team and board filters project counts and tiles on the dashboard and team page, how the default scope changes at route boundaries, and which groups open for the current route or board filter. Consulted the filter and count logic in `client/src/utils/sidebar-filter.js`, `client/src/components/Filter/Filter.jsx`, `client/src/components/Project/Project.jsx`, `client/src/components/Projects/Projects.jsx`, `client/src/containers/ProjectContainer.js`, `client/src/containers/ProjectsContainer.js` and `client/src/components/Static/SidebarProject.jsx`.
+- [x] Step 3 approved at baseline `a6a4d2e`. The user approved a combined run for steps 4–7 while retaining the calendar dependency decision.
+- [x] Step 4. Added the RTL Kanban canvas, list collapse, inline list and card creation, card summaries, status and board title search.
+- [x] Step 5. Added the shared sortable composable, pointer and touch handles, and an accessible move dialog. The same exact fractional contract applies to lists, cards and checklist items.
+- [x] Step 6. Added protected card detail routes, plain-text fields, a nullable assignee, card priority and labels, and checklist creation, editing, completion and ordering. The product specification was sufficient for steps 4–6. No sibling source was consulted for these steps.
+- [x] Step 7. Integrated Jalali due-date display and editing on cards, the shared Tehran clock, UTC-only mutations, and the authenticated picker review. The user approved `Asia/Tehran` and delegated library selection. The parent pinned `jalaali-js` 2.0.1 for conversion and kept the picker a Vue component.
+- [x] The combined review uses the requested dark glass theme, two dark base colors and a mint accent. The parent integrated the supplied Dana and Morabba fonts. Vazirmatn remains the primary UI typeface, Dana serves headings, and Morabba serves the Planor wordmark. [Planor theme tokens](design-tokens.md#planor-visual-theme)
 
 ## Remaining
 
-- [ ] User review of step 3. Parent owns browser QA, the preview at `127.0.0.1:5176`, and Git.
-- [ ] Steps 4–6. Static board, drag and drop, and card details.
-- [ ] Steps 7–11. Jalali calendar, attachments/comments, notifications/activity, archive/restore/deletion, and final states and consistency.
+- [ ] Review of the combined steps 4–7 candidate. Integrated picker browser acceptance is pending at desktop and mobile widths.
+- [ ] Steps 8–11. Attachments/comments, notifications/activity, archive/restore/deletion, and final states and consistency.
+- [ ] Parent owns browser QA, the preview at `127.0.0.1:5176`, and Git.
 
 ## Pending decisions
 
 - **Account policy.** Confirm whether login accepts both username and email, registration password policy, initial display-name rules, production consent copy, and whether email verification is required. The review harness accepts email and a 3–16 character ASCII username, uses a mock 12-character password minimum, and assigns a known fictional Persian display name to the signup fixture. The consent line covers account creation. Real account policy and verification are pending.
 - **Workspace permissions.** Production team roles, private board rules and commenting permissions remain pending. The review harness models view access through fixture membership and board grants. Local disclosure changes survive Inertia navigation, and reload takes the supplied membership default.
-- **Step 6, card details.** Confirm priority levels and their presentation, assignee replacement, and the narrow-screen card-detail layout.
-- **Step 7, calendar dependency.** Present two or three library choices with bundle size, upkeep, Vue 3/RTL support and conversion versus picker coverage. Wait for the user's choice before installing a date package.
-- **Step 7, timezone.** Ask which timezone the Jalali picker, displayed timestamps, and selected-day filter should use. The transport and storage contract is Gregorian ISO 8601 in UTC.
+- **Step 6, card details.** The review uses four priority levels, replacement of a single assignee, and a full-width panel at 800px and below. Confirm their final presentation during review.
+- **Date-only filter.** Future date-only filter semantics and the selected-day cutoff remain open. Current due-state comparisons use exact instants. [Planor date decisions](dates.md#planor-date-decisions)
 - **Step 10, archive.** Confirm which records can be archived, who can restore them, and the restore destination when the original list is unavailable.
-- **Later product design.** Final Persian font family.
 
 ## Verification
 
@@ -107,4 +111,53 @@ The sidebar and tiles read a single authorized `navigation` projection. Dashboar
 | `git -c core.safecrlf=false diff HEAD --check` and `git diff HEAD --exit-code -- package.json package-lock.json` | Passed. The package manifest and lockfile are unchanged. |
 | Browser and live-server verification | Passed at 1910 px and 389 px. Verified the team and board counts, two search scopes and Persian normalization, temporary group expansion, keyboard exit and clearing, active selection, protected return and reload, Back/Forward, empty and restricted views, and RTL layout without horizontal overflow. Restarted the live Vite preview on `127.0.0.1:5176` so it picked up the new Tailwind configuration. The desktop grid and single-column mobile grid passed after restart. The preview remains running for review. |
 
-Next step after step 3 approval is Step 4, static board with lists/cards and collapse. Eight steps remain in the 11-step plan.
+### Steps 4–6 local QA
+
+The connected data lives in `resources/js/mocks/boards.js` and `resources/js/mocks/workspace.js`. The in-process harness projects authorized navigation, board summaries and the selected card through `harness/workspace.js`; `harness/boards.js` applies validated mutations and saves a per-account snapshot in the review tab's session storage. `harness/auth.js` and `harness/main.js` handle protected returns and refresh of old history entries after a mutation. The UI is in `resources/js/Pages/Workspace/Board.vue` and the new board, list, card, checklist, inline form and move components. `resources/js/composables/useSortable.js` coordinates handles and move dialogs. `resources/js/lib/board.js` handles fractional positions. The Persian strings are in `resources/js/lang/fa.js`, with shared tokens in `resources/css/app.css` and `tailwind.config.js`.
+
+| Scenario | Review route and expected behavior |
+| --- | --- |
+| Editor | Sign in as نیلوفر رستگار (`usr-1007`) with the step 2 fixture. From a clean review tab, `/boards/br-201` shows four lists, seven cards and nine checklist items. List `ls-304` starts collapsed. The counts reflect the seeded records and replace the earlier placeholder navigation counts. |
+| Search and collapse | On `/boards/br-201`, search `ناوبری`. Expect one card out of seven. Clear the search before reordering. Changing collapse on an editable board survives reload. A read-only board's disclosure is local to the current page context. |
+| Move and create | On `/boards/br-201`, use a move handle with pointer or touch, or activate it with Enter and select a list and position. Same-place submissions are disabled. Lists stay in the board, cards may move across its lists, and checklist rows stay in the selected card. `/boards/br-205` starts with no lists or cards and allows the editor to create both. |
+| Editable card | Open `/cards/cr-401`. It has three checklist rows, one initially complete. Edit the title, plain-text description, assignee, priority and assigned labels. Add, rename, toggle or move a checklist row. Close the panel to return to the parent board and reload to confirm the mutations. |
+| Viewer and restricted | `/boards/br-204` shows four cards and two checklist items. `/cards/cr-411` opens a read-only detail pane. `/cards/cr-415` and `/boards/br-203` are unavailable and send no restricted board data. The signup fixture has no board grants. The editor and viewer capabilities are fixture grants, and production role policy remains open. |
+| Keyboard and viewport | Parent browser QA can use 1910 px and 389 px, and check the detail breakpoint at 800/801 px. Use Tab and Enter for move controls, Escape to dismiss the move dialog or close a focused card panel, and check that focus returns to the source card or board heading. Below 801 px the panel fills the workspace and hides the canvas until closed. |
+
+The board exposes only card summaries. The selected card includes the full description and checklist. A new card starts unassigned with normal priority. Review priorities are low, normal, high and urgent. Card summaries and details expose nullable Gregorian ISO UTC `dueAt` for step 7. The board retains a separate card completion flag and checklist progress.
+
+| Check | Result |
+| --- | --- |
+| `node --input-type=module -`, board and route assertions | Passed for seeded counts, signed-out returns, editor creation, blank-title rejection, viewer and private access, collapse, and reload via the same isolated session. |
+| `node --input-type=module -`, ordering assertions | Passed for the exact first, between, last and empty formulas, no-op, same-list and cross-list moves, inaccessible destinations and invalid positions, and reload. |
+| `node --input-type=module -`, sortable pointer assertions | Passed for RTL target geometry, one emitted payload per move, Escape cancellation, and no-op or restricted destinations. The test used synthetic geometry in a Vue renderer. |
+| `node --input-type=module -`, card detail assertions | Passed for signed-out return, authorized projections, plain text and UTC due-date preservation, single-assignee replacement and clearing, invalid field rejection, completion, the checklist lifecycle and ordering, reload, and read-only and private access. |
+| `node --input-type=module -`, Vue SFC compilation | Passed compile of 11 stage 4–6 SFCs using `@vue/compiler-sfc`, then recompiled the four affected after template cleanup. |
+| Installed `eslint.cmd` on the 22 affected files, and `git -c core.safecrlf=false diff HEAD --check` | Both passed with exit code 0. The full build and lint are reserved for the combined steps 4–7 candidate. |
+
+The browser checks covered board creation and filtering, list collapse, mouse and keyboard moves, readonly board and card access, title and plain-text description edits, replacement of the single assignee, priority, labels and checklist persistence. The detail panel filled the available width at 389 px and returned keyboard focus to the originating card when closed. Physical touchscreen acceptance remains pending. The browser session supported mouse input and a mobile viewport.
+
+### Step 7 local QA
+
+The existing `JalaliDateTimePicker.vue`, `DueDateBadge.vue` and `useDate.js` now connect to the board, list, summary and detail components. A board clock refreshes on focus, Tehran midnight and due-state boundaries. A due-date edit sends only `{ dueAt }` through the current card mutation and preserves the metadata draft. The mock validates Gregorian ISO UTC input and stores the canonical form with milliseconds, or `null` for a clear. Rejected values leave the record intact. The review route uses `resources/js/mocks/dates.js` and the existing signed-out return flow.
+
+| Scenario | Review route and expected result |
+| --- | --- |
+| Four picker states | Open `http://127.0.0.1:5176/review/jalali`. When signed out, log in with the existing fixture. Expect empty, selected, overdue and disabled samples using the fixed Tehran reference time of ۱۲:۰۰ on ۲۹ آبان ۱۴۰۵. The review samples are independent of board records and reset on reload. |
+| Date edit and draft | Open `/cards/cr-401` as the editor. Change the title without saving it, then add or change the due date. The unsaved title stays in the form while the date updates in the panel and board summary. Clear the due date and reload. The summary badge disappears and the picker is empty. |
+| Locale and keyboard | On the review page, enter `۱۴۰۵/۰۸/۲۷` and `۱۴:۳۰` to see `۲۷ آبان ۱۴۰۵، ۱۴:۳۰`. Check Saturday-first layout, directional day and week navigation, Home/End, Page Up/Page Down, Escape and focus return. An invalid date or time stays in the picker with its localized error. |
+| Board status and view-only | `/boards/br-201` shows dates for `cr-401` and `cr-404` in an unmodified tab. Live colors depend on the actual clock. A completed card retains a neutral date. `/cards/cr-411` displays its due date in a disabled picker; `/cards/cr-415` remains unavailable. |
+| Responsive review | Parent browser QA can use 1910 px and 389 px. Check the glass header and picker, keyboard focus, modal scroll and the full-width mobile detail pane. |
+
+| Check | Final candidate result |
+| --- | --- |
+| `node --input-type=module -`, harness and date assertions | Passed authenticated review return and reload, fixture states, Persian input and display, UTC canonical save and clear, atomic invalid-patch rejection, and viewer/private access. |
+| `node --input-type=module -`, clock assertions | Passed the 14-day warning and overdue boundaries, Tehran midnight, focus refresh and timer cleanup with a controlled clock. |
+| `node --input-type=module -`, details draft assertions | Passed Vue prop-update draft retention and confirmed the picker is outside the detail form. |
+| `node --input-type=module -`, typed-date parser | Passed slash and hyphen input, mixed delimiter rejection and invalid day rejection after removing an unnecessary regex escape reported by ESLint. |
+| `npm run build` | Passed with exit code 0. Vite 8.3.8 transformed 622 modules and built in 1.36s, including Board, DateReview and JalaliDateTimePicker chunks. |
+| `npm run lint` | Passed with exit code 0. ESLint reported zero errors and warnings. |
+| Browser acceptance | Passed on desktop and at 389 px for the four picker states, Saturday-first layout, RTL arrow navigation across a month, invalid input and recovery, Escape and focus return, date edits without losing the details draft, persisted UTC values, clearing after reload and a disabled viewer picker. Verified the loaded Dana, Morabba and Vazirmatn font faces and the glass effect with the reduced-transparency fallback. |
+| Production preview HTTP smoke check | Passed for login, board, card and calendar review routes, bundled entry script and all five WOFF2 assets. The live development preview was restarted on `127.0.0.1:5176` to load the final theme and remains available for review. |
+
+Next step after user approval is Step 8, attachments and comments with @mentions. Four steps remain in the plan.

@@ -11,7 +11,7 @@ defineProps({
     type="submit"
     :disabled="busy"
     :aria-busy="busy"
-    class="flex min-h-control w-full items-center justify-center gap-2 rounded-control bg-auth-button ps-4 pe-4 text-label font-bold text-on-auth-button enabled:hover:bg-sidebar-selected disabled:cursor-wait"
+    class="flex min-h-control w-full items-center justify-center gap-2 rounded-control bg-auth-button ps-4 pe-4 text-label font-bold text-on-auth-button enabled:hover:brightness-110 disabled:cursor-wait"
   >
     <span
       v-if="busy"

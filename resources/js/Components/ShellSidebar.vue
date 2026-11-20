@@ -39,7 +39,7 @@ function handleEscape(event) {
 </script>
 
 <template>
-  <aside class="shrink-0 border-b border-subtle bg-sidebar p-2 shell:w-sidebar shell:overflow-y-auto shell:border-b-0 shell:border-e shell:p-3 shell:shadow-sidebar">
+  <aside class="glass-surface shrink-0 border-b border-subtle bg-sidebar p-2 shell:w-sidebar shell:overflow-y-auto shell:border-b-0 shell:border-e shell:p-3 shell:shadow-sidebar">
     <nav :aria-label="fa.shell.navigation" class="grid gap-3">
       <Link
         :href="homeUrl"

@@ -2,44 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: Vazirmatn;
+  src: url('../fonts/Vazirmatn-Variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Dana;
+  src: url('../fonts/Dana-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Dana;
+  src: url('../fonts/Dana-DemiBold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Dana;
+  src: url('../fonts/Dana-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Morabba;
+  src: url('../fonts/Morabba-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
-    --font-ui: system-ui, sans-serif;
+    --font-ui: Vazirmatn, system-ui, sans-serif;
+    --font-heading: Dana, var(--font-ui);
+    --font-brand: Morabba, var(--font-heading);
 
-    --color-canvas: #22252a;
-    --color-auth: #1e1e1e;
-    --color-header: #1a1c20;
-    --color-sidebar: #20303f;
-    --color-sidebar-item: #162029;
-    --color-sidebar-selected: #0c5064;
-    --color-tile: #3b3b3b;
-    --color-list: #1f2d3c;
-    --color-card: #2c3e51;
-    --color-card-hover: #1c3546;
-    --color-card-selected: #11576b;
-    --color-detail: #223140;
-    --color-detail-header: #2c3e51;
-    --color-popup: #2a3d50;
-    --color-input: #17232c;
-    --color-text-primary: #ebebec;
-    --color-text-secondary: #d3d3d3;
-    --color-text-muted: #999999;
-    --color-link: #2196f3;
-    --color-accent: #34b7cd;
-    --color-border: #5f6064;
-    --color-border-subtle: rgb(54 75 97 / 50%);
-    --color-submit: #5aac44;
-    --color-cancel: #cf513d;
-    --color-auth-action: #2185d0;
-    --color-auth-button: #2075b6;
-    --color-on-auth-button: #ffffff;
-    --color-auth-error: #ff6f61;
-    --color-auth-error-surface: #5a2323;
-    --color-notification: #eb5a46;
-    --color-due-normal: #999999;
-    --color-due-close: #fdd41e;
-    --color-due-over: #ff3030;
+    --tone-canvas: #101719;
+    --tone-surface: #1b2829;
+    --tone-accent: #62d6a4;
+    --color-canvas: var(--tone-canvas);
+    --color-auth: transparent;
+    --color-header: color-mix(in srgb, var(--tone-surface) 84%, transparent);
+    --color-sidebar: color-mix(in srgb, var(--tone-surface) 75%, transparent);
+    --color-sidebar-item: color-mix(in srgb, var(--tone-canvas) 56%, var(--tone-surface));
+    --color-sidebar-selected: color-mix(in srgb, var(--tone-accent) 20%, var(--tone-surface));
+    --color-tile: color-mix(in srgb, var(--tone-surface) 90%, transparent);
+    --color-list: color-mix(in srgb, var(--tone-surface) 72%, transparent);
+    --color-card: color-mix(in srgb, var(--tone-surface) 91%, #e3f5ec);
+    --color-card-hover: color-mix(in srgb, var(--tone-accent) 12%, var(--color-card));
+    --color-card-selected: var(--color-sidebar-selected);
+    --color-detail: var(--tone-surface);
+    --color-detail-header: color-mix(in srgb, var(--tone-surface) 88%, transparent);
+    --color-popup: color-mix(in srgb, var(--tone-surface) 92%, #e3f5ec);
+    --color-input: color-mix(in srgb, var(--tone-canvas) 70%, var(--tone-surface));
+    --color-text-primary: #ecf6f2;
+    --color-text-secondary: #c0d2cd;
+    --color-text-muted: #a4b7b1;
+    --color-link: var(--tone-accent);
+    --color-accent: var(--tone-accent);
+    --color-border: #607772;
+    --color-border-subtle: color-mix(in srgb, #b8ded0 18%, transparent);
+    --color-submit: var(--tone-accent);
+    --color-cancel: #f89186;
+    --color-auth-action: var(--tone-accent);
+    --color-auth-button: var(--tone-accent);
+    --color-on-auth-button: var(--tone-canvas);
+    --color-auth-error: #ffa198;
+    --color-auth-error-surface: #3d2526;
+    --color-notification: var(--tone-accent);
+    --color-due-normal: var(--color-text-muted);
+    --color-due-close: #f2ce7c;
+    --color-due-over: var(--color-auth-error);
 
     --type-meta: 0.8571429rem;
     --type-body: 1rem;
@@ -47,8 +92,8 @@
     --type-shell-title: 1.4285714rem;
     --type-heading: 2rem;
     --type-auth-title: 2.5714286rem;
-    --line-body: 1.4285;
-    --line-heading: 1.28571429;
+    --line-body: 1.6;
+    --line-heading: 1.4;
 
     --space-2: 2px;
     --space-4: 4px;
@@ -68,19 +113,24 @@
     --size-board-toolbar: 68px;
     --size-tile-min: 200px;
     --size-tile-row: 120px;
+    --size-list: 272px;
+    --size-card-panel: 650px;
+    --size-card-stack: calc(100dvh - var(--size-header) - var(--size-board-toolbar) - 10 * var(--space-20));
 
-    --radius-card: 2px;
-    --radius-control: 3px;
-    --radius-tile: 5px;
-    --radius-panel: 12px;
+    --radius-card: 10px;
+    --radius-control: 8px;
+    --radius-tile: 14px;
+    --radius-panel: 18px;
     --radius-round: 50%;
 
-    --shadow-card: 0 1px 4px rgb(0 0 0 / 15%);
-    --shadow-sidebar: -2px 0 5px rgb(0 0 0 / 10%);
-    --shadow-popup: -1px -1px 3px #19232e, 1px 1px 3px #19232e;
+    --shadow-card: 0 10px 24px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(236 246 242 / 5%);
+    --shadow-sidebar: -8px 0 28px rgb(0 0 0 / 12%);
+    --shadow-popup: 0 16px 48px rgb(0 0 0 / 35%);
+    --blur-glass: 14px;
     --layer-popup: 2000;
     --motion-loader: 600ms;
     --motion-tile: 200ms;
+    --motion-board-drop: 150ms;
   }
 
   html {
@@ -89,10 +139,47 @@
 
   body {
     @apply bg-canvas font-sans text-body text-primary;
+    min-block-size: 100dvh;
+    background-image: radial-gradient(
+      ellipse at top right,
+      color-mix(in srgb, var(--tone-accent) 13%, transparent),
+      transparent 46rem
+    ), linear-gradient(145deg, var(--tone-canvas) 56%, var(--tone-surface));
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
   }
 
   :focus-visible {
     outline: var(--space-2) solid var(--color-accent);
     outline-offset: var(--space-2);
+  }
+}
+
+@layer components {
+  .font-brand {
+    font-family: var(--font-brand);
+  }
+
+  .glass-surface {
+    backdrop-filter: blur(var(--blur-glass));
+  }
+
+  .glass-surface::backdrop {
+    background: color-mix(in srgb, var(--tone-canvas) 80%, transparent);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --color-header: var(--tone-surface);
+    --color-sidebar: var(--tone-surface);
+    --color-detail-header: var(--tone-surface);
+    --color-list: var(--tone-surface);
+    --color-tile: var(--tone-surface);
+    --blur-glass: 0px;
   }
 }

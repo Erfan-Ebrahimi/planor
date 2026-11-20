@@ -12,9 +12,11 @@ const props = defineProps({
   navigation: { type: Object, required: true },
 })
 
-const heading = computed(() => props.navigation.current.view === 'unavailable-team'
-  ? fa.workspace.unavailableTeam
-  : fa.workspace.unavailableBoard)
+const heading = computed(() => ({
+  'unavailable-team': fa.workspace.unavailableTeam,
+  'unavailable-board': fa.workspace.unavailableBoard,
+  'unavailable-card': fa.workspace.unavailableCard,
+})[props.navigation.current.view])
 </script>
 
 <template>

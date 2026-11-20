@@ -39,7 +39,7 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
 </script>
 
 <template>
-  <header class="flex h-header shrink-0 items-center gap-2 border-b border-subtle bg-header ps-2.5 pe-2.5 shell:gap-3 shell:ps-5 shell:pe-5">
+  <header class="glass-surface flex h-header shrink-0 items-center gap-2 border-b border-subtle bg-header ps-2.5 pe-2.5 shell:gap-3 shell:ps-5 shell:pe-5">
     <button
       type="button"
       class="grid size-control shrink-0 place-items-center rounded-control text-secondary hover:bg-sidebar hover:text-primary"
@@ -54,7 +54,7 @@ const toggleLabel = computed(() => (props.sidebarOpen ? fa.shell.hideSidebar : f
 
     <Link
       :href="homeUrl"
-      class="inline-flex shrink-0 items-center gap-1.5 rounded-control text-shell-title font-bold"
+      class="font-brand inline-flex shrink-0 items-center gap-1.5 rounded-control text-shell-title font-bold"
     >
       <span class="grid size-mark place-items-center rounded-control bg-sidebar-selected text-primary">
         <AppIcon name="brand" class="size-icon" />

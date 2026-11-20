@@ -6,6 +6,7 @@ export default {
     extend: {
       screens: {
         shell: shellMinWidth,
+        detail: '801px',
       },
       colors: {
         canvas: 'var(--color-canvas)',
@@ -69,6 +70,9 @@ export default {
         icon: 'var(--size-icon)',
         mark: 'var(--size-mark)',
         toolbar: 'var(--size-board-toolbar)',
+        column: 'var(--size-list)',
+        collapsed: 'var(--size-tile-row)',
+        'card-panel': 'var(--size-card-panel)',
       },
       gridTemplateColumns: {
         workspace: 'repeat(auto-fill, minmax(min(100%, var(--size-tile-min)), 1fr))',
@@ -78,6 +82,7 @@ export default {
       },
       transitionDuration: {
         tile: 'var(--motion-tile)',
+        'board-drop': 'var(--motion-board-drop)',
       },
       borderRadius: {
         card: 'var(--radius-card)',
@@ -88,6 +93,10 @@ export default {
       },
       maxWidth: {
         'auth-panel': 'var(--size-auth-panel)',
+      },
+      maxHeight: {
+        'card-stack': 'max(var(--size-list), var(--size-card-stack))',
+        'card-panel': 'calc(100dvh - var(--size-header) - var(--size-board-toolbar))',
       },
       boxShadow: {
         card: 'var(--shadow-card)',
